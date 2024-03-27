@@ -1,0 +1,43 @@
+# 指定Docker Compose配置文件的版本
+version: '3'
+
+# 指定Docker Compose的服务
+services:
+  # 服務名稱(自定義)
+  mysql-joe:
+    # 指定服务所使用的Docker镜像。最新版則是 latest
+    image: mysql:latest
+    # 指定容器異常退出時是否自動重啟，本例中指定始終自動重啟
+    restart: always
+    # 容器名稱(自定義)
+    container_name: mysql-joe
+    # 容器運行的平台
+    platform: linux/amd64
+    # 部屬配置項。本例中指定內存限制為2G
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    # 容器的端口。本例中 Mysql的3306端口映射到3314端口，外部使用者透過3314連線
+    ports:
+      - 3388:3306
+    # 指定容器與主機的文件夾映射，本例中將MySQL數據存儲在主機的../docker/mysql-tavf/data文件夾中。
+    volumes:
+      - ../docker/mysql-joe/data:/var/lib/mysql
+    # 指定容器環境變量
+    environment:
+      - MYSQL_ROOT_PASSWORD=qwer1234
+      - MYSQL_USER=joe
+      - MYSQL_PASSWORD=qwer1234
+      - MYSQL_DATABASE=joe_ptsd
+      - TZ=Asia/Taipei
+    # 指定容器啟動時執行的命令
+    command:
+      - 'mysqld'
+      - '--character-set-server=utf8'
+      - '--collation-server=utf8_bin'
+      - '--default-time-zone=+08:00'
+      - '--skip-character-set-client-handshake'
+      - '--default-authentication-plugin=mysql_native_password'
+      - '--log-bin-trust-function-creators=1'
+      - '--lower_case_table_names=1'

@@ -1,11 +1,13 @@
 package com.joe.vuebackend.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.joe.vuebackend.constant.Gender;
+import com.joe.vuebackend.convert.GenderConvert;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 /**
  * 帳號
@@ -13,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Entity
 @Table(name = "j_user")
+@Inheritance(strategy = InheritanceType.JOINED)
 @AllArgsConstructor
 @NoArgsConstructor
 public class User extends BaseEntity {
@@ -20,14 +23,45 @@ public class User extends BaseEntity {
     /**
      * 用戶名
      */
-    @Column(name = "username")
-    private String username;
+    @Column(name = "name")
+    private String name;
 
     /**
      * 密碼
      */
     @Column(name = "password")
     private String password;
+
+    /**
+     * 性別
+     */
+    @Column(name = "gender")
+    @Convert(converter = GenderConvert.class)
+    private Gender gender;
+
+    /**
+     * 生日
+     */
+    @Column(name = "birth")
+    private LocalDateTime birth;
+
+    /**
+     * 年紀
+     */
+    @Column(name = "age")
+    private Integer age;
+
+    /**
+     * 電話
+     */
+    @Column(name = "phone")
+    private String phone;
+
+    /**
+     * 信箱
+     */
+    @Column(name = "mail")
+    private String mail;
 
 //    /**
 //     * 用戶角色(權限)資料

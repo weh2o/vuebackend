@@ -32,8 +32,8 @@ class InitDateTest {
     @Commit
     void initUserTest() {
         User user = new User();
-        user.setUsername("admin");
-        user.setPassword("qwer1234");
+        user.setName("admin");
+        user.setPassword("1111");
         userRepository.save(user);
     }
 

@@ -33,11 +33,47 @@ public class HttpResult<t> implements Serializable {
     private t data;
 
 
+
+    public static <t> HttpResult<t> success(){
+        return success("成功");
+    }
+    public static <t> HttpResult<t> success(String msg){
+        HttpResult<t> target = new HttpResult<>();
+        target.setMsg(msg);
+        target.setCode(HttpStatus.OK.value());
+        return target;
+    }
+
+    public static <t> HttpResult<t> success(t data){
+        HttpResult<t> target = new HttpResult<>();
+        target.setMsg("成功");
+        target.setCode(HttpStatus.OK.value());
+        target.setData(data);
+        return target;
+    }
+
     public static <t> HttpResult<t> success(String msg, t data){
         HttpResult<t> target = new HttpResult<>();
         target.setCode(HttpStatus.OK.value());
         target.setMsg(msg);
         target.setData(data);
+        return target;
+    }
+
+    public static <t> HttpResult<t> fail(){
+        return fail("失敗");
+    }
+
+    public static <t> HttpResult<t> fail(String msg){
+        HttpResult<t> target = new HttpResult<>();
+        target.setMsg(msg);
+        target.setCode(HttpStatus.BAD_REQUEST.value());
+        return target;
+    }
+
+    public static <t> HttpResult<t> fail(String msg, t data){
+        HttpResult<t> target = new HttpResult<>();
+        target.setCode(HttpStatus.BAD_REQUEST.value());
         return target;
     }
 
@@ -48,4 +84,5 @@ public class HttpResult<t> implements Serializable {
         target.setData(data);
         return target;
     }
+
 }

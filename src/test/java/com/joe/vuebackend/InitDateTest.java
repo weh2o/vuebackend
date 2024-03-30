@@ -5,6 +5,7 @@ import com.joe.vuebackend.domain.Role;
 import com.joe.vuebackend.domain.User;
 import com.joe.vuebackend.repository.RoleRepository;
 import com.joe.vuebackend.repository.UserRepository;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -22,10 +23,10 @@ import java.util.List;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class InitDateTest {
 
-    @Autowired
+    @Setter(onMethod_ = @Autowired)
     private RoleRepository roleRepository;
 
-    @Autowired
+    @Setter(onMethod_ = @Autowired)
     private UserRepository userRepository;
 
     @Test

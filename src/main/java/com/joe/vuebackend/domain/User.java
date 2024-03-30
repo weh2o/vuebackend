@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -43,7 +44,7 @@ public class User extends BaseEntity {
      * 生日
      */
     @Column(name = "birth")
-    private LocalDateTime birth;
+    private LocalDate birth;
 
     /**
      * 年紀

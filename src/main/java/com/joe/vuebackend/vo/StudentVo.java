@@ -9,7 +9,7 @@ import lombok.val;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 
@@ -33,8 +33,11 @@ public class StudentVo {
 
     public static StudentVo ofVo(Student source) {
         val target = new StudentVo();
+        return ofVo(source, target);
+    }
 
-        // 姓名
+    public static StudentVo ofVo(Student source, StudentVo target) {
+        // 識別碼
         if (StringUtils.isNotEmpty(source.getId())) {
             target.setId(source.getId());
         }
@@ -49,7 +52,9 @@ public class StudentVo {
         }
         // 性別
         if (ObjectUtils.isNotEmpty(source.getGender())) {
-            target.setSex(source.getGender().getText());
+
+            String code = source.getGender().getCode();
+            target.setSex(source.getGender().getCode());
         }
         // 學生證
         if (StringUtils.isNotEmpty(source.getNo())) {
@@ -74,6 +79,15 @@ public class StudentVo {
 
     public static Student ofStudent(StudentVo source) {
         Student target = new Student();
+        return ofStudent(source, target);
+    }
+
+    public static Student ofStudent(StudentVo source, Student target) {
+        // 識別碼
+        if (StringUtils.isNotEmpty(source.getId())) {
+            target.setId(source.getId());
+        }
+
         // 姓名
         if (StringUtils.isNotEmpty(source.getName())) {
             target.setName(source.getName());
@@ -102,8 +116,14 @@ public class StudentVo {
         // 生日
         if (StringUtils.isNotEmpty(source.getBirth())) {
             String sourceBirth = source.getBirth();
-            LocalDateTime userBirth = LocalDateTime.parse(sourceBirth, DateTimeFormatter.ISO_DATE_TIME);
-            target.setBirth(userBirth);
+            LocalDate stuBirth;
+            if (sourceBirth.length() != 10) {
+                stuBirth = LocalDate.parse(sourceBirth, DateTimeFormatter.ISO_DATE_TIME);
+
+            } else {
+                stuBirth = LocalDate.parse(sourceBirth);
+            }
+            target.setBirth(stuBirth);
         }
 
         // 電話

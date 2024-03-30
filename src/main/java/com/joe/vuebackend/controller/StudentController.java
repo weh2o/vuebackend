@@ -1,13 +1,10 @@
 package com.joe.vuebackend.controller;
 
-import com.joe.vuebackend.domain.Student;
-import com.joe.vuebackend.domain.User;
 import com.joe.vuebackend.service.StudentService;
 import com.joe.vuebackend.vo.HttpResult;
 import com.joe.vuebackend.vo.StudentVo;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,15 +19,12 @@ public class StudentController {
     private StudentService studentService;
 
     @PostMapping
-    public HttpResult<User> addStudent(@RequestBody StudentVo vo) {
-        HttpResult<User> result = new HttpResult<>();
-        Optional<Student> optional = studentService.addStudent(vo);
+    public HttpResult<StudentVo> save(@RequestBody StudentVo vo) {
+        HttpResult<StudentVo> result = HttpResult.fail();
+        Optional<StudentVo> optional = studentService.saveReturnVo(vo);
         if (optional.isPresent()) {
-            User target = optional.get();
-            result = HttpResult.success("新增成功", target);
-        } else {
-            result.setCode(HttpStatus.BAD_REQUEST.value());
-            result.setMsg("新增失敗");
+            StudentVo target = optional.get();
+            result = HttpResult.success(target);
         }
         return result;
     }
@@ -41,9 +35,19 @@ public class StudentController {
         return HttpResult.success("你好", list);
     }
 
-    @GetMapping
-    public HttpResult<StudentVo> findOne() {
-        HttpResult<StudentVo> result = new HttpResult<>();
+    @GetMapping("/{id}")
+    public HttpResult<StudentVo> findOne(@PathVariable("id") String id) {
+        HttpResult<StudentVo> result = HttpResult.fail();
+        Optional<StudentVo> optional = studentService.findOneVo(id);
+        if (optional.isPresent()) {
+            result = HttpResult.success(optional.get());
+        }
         return result;
     }
+
+    @DeleteMapping("{id}")
+    public HttpResult<String> remove(@PathVariable("id") String id) {
+        return studentService.remove(id);
+    }
+
 }

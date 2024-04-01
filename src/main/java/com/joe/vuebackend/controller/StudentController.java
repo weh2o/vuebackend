@@ -1,15 +1,14 @@
 package com.joe.vuebackend.controller;
 
-import com.joe.vuebackend.bean.PageResult;
-import com.joe.vuebackend.service.StudentService;
 import com.joe.vuebackend.bean.HttpResult;
-import com.joe.vuebackend.bean.PageData;
+import com.joe.vuebackend.bean.PageResult;
+import com.joe.vuebackend.repository.condition.StudentCondition;
+import com.joe.vuebackend.service.StudentService;
 import com.joe.vuebackend.vo.StudentVo;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -32,8 +31,8 @@ public class StudentController {
     }
 
     @GetMapping("/all")
-    public HttpResult<PageResult<StudentVo>> getAllVo(PageData pageData) {
-        PageResult<StudentVo> result = studentService.findAllVo(pageData);
+    public HttpResult<PageResult<StudentVo>> getAllVo(StudentCondition condition) {
+        PageResult<StudentVo> result = studentService.findAllVo(condition);
         return HttpResult.success("你好", result);
     }
 
@@ -52,4 +51,10 @@ public class StudentController {
         return studentService.remove(id);
     }
 
+
+    @GetMapping("/search/{nameOrNo}")
+    public HttpResult<PageResult<StudentVo>> search(StudentCondition condition) {
+        PageResult<StudentVo> result = studentService.searchByNameOrNo(condition);
+        return HttpResult.success("查詢成功", result);
+    }
 }

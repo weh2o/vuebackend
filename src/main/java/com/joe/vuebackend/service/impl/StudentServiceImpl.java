@@ -1,10 +1,11 @@
 package com.joe.vuebackend.service.impl;
 
 import com.joe.vuebackend.bean.HttpResult;
-import com.joe.vuebackend.bean.PageData;
 import com.joe.vuebackend.bean.PageResult;
 import com.joe.vuebackend.domain.Student;
 import com.joe.vuebackend.repository.StudentRepository;
+import com.joe.vuebackend.repository.condition.StudentCondition;
+import com.joe.vuebackend.repository.spec.StudentSearchNameOrNoSpec;
 import com.joe.vuebackend.service.StudentService;
 import com.joe.vuebackend.vo.StudentVo;
 import lombok.Setter;
@@ -22,7 +23,7 @@ import java.util.Optional;
 public class StudentServiceImpl implements StudentService {
 
     @Setter(onMethod_ = @Autowired)
-    private StudentRepository studentRepository;
+    private StudentRepository stuRepository;
 
     @Override
     public Optional<Student> save(StudentVo vo) {
@@ -30,7 +31,7 @@ public class StudentServiceImpl implements StudentService {
         Student stu = StudentVo.ofStudent(vo);
         // 沒id新增操作，有id修改操作
         if (StringUtils.isEmpty(vo.getId())) {
-            target = Optional.of(studentRepository.save(stu));
+            target = Optional.of(stuRepository.save(stu));
         } else {
             target = update(stu);
         }
@@ -49,28 +50,28 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public List<Student> findAll() {
-        return studentRepository.findAll();
+        return stuRepository.findAll();
     }
 
     @Override
-    public PageResult<StudentVo> findAllVo(PageData pageData) {
+    public PageResult<StudentVo> findAllVo(StudentCondition condition) {
         PageResult<StudentVo> result = new PageResult<>();
-        long count = studentRepository.count();
+        long count = stuRepository.count();
         // 默認排序
         Sort sort = Sort.by(Sort.Direction.ASC, "age");
 
         // 定製排序
-        if (StringUtils.isNotEmpty(pageData.getProp()) &&
-                StringUtils.isNotEmpty(pageData.getOrder())
+        if (StringUtils.isNotEmpty(condition.getProp()) &&
+                StringUtils.isNotEmpty(condition.getOrder())
         ) {
-            String order = pageData.getOrder().substring(0, 3);
+            String order = condition.getOrder().substring(0, 3);
             Sort.Direction direction;
             if ("asc".equals(order)) {
                 direction = Sort.Direction.ASC;
             } else {
                 direction = Sort.Direction.DESC;
             }
-            String prop = pageData.getProp();
+            String prop = condition.getProp();
             // 性別特別處理
             if ("sex".equals(prop)) {
                 prop = "gender";
@@ -78,23 +79,23 @@ public class StudentServiceImpl implements StudentService {
             sort = Sort.by(direction, prop);
         }
 
-        Page<Student> resultPage = studentRepository.findAll(
+        Page<Student> resultPage = stuRepository.findAll(
                 PageRequest.of(
-                        pageData.getPage() - 1,
-                        pageData.getPageSize(),
+                        condition.getPage() - 1,
+                        condition.getPageSize(),
                         sort
                 )
         );
         result.setTotal(count);
-        List<StudentVo> list = resultPage.getContent().stream().map(StudentVo::ofVo).toList();
-        result.setData(list);
+        List<StudentVo> vos = resultPage.getContent().stream().map(StudentVo::ofVo).toList();
+        result.setData(vos);
         return result;
     }
 
     @Override
     public Optional<StudentVo> findOneVo(String id) {
         Optional<StudentVo> target = Optional.empty();
-        Optional<Student> optional = studentRepository.findById(id);
+        Optional<Student> optional = stuRepository.findById(id);
         if (optional.isPresent()) {
             StudentVo vo = StudentVo.ofVo(optional.get());
             target = Optional.of(vo);
@@ -105,17 +106,28 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public HttpResult<String> remove(String id) {
         HttpResult<String> result = HttpResult.success();
-        studentRepository.deleteById(id);
-        Optional<Student> optional = studentRepository.findById(id);
+        stuRepository.deleteById(id);
+        Optional<Student> optional = stuRepository.findById(id);
         if (optional.isPresent()) {
             result = HttpResult.fail();
         }
         return result;
     }
 
+    // 應該可以和findAll合併，全都用Spec寫
+    @Override
+    public PageResult<StudentVo> searchByNameOrNo(StudentCondition condition) {
+        PageResult<StudentVo> result = new PageResult<>();
+        List<Student> list = stuRepository.findAll(StudentSearchNameOrNoSpec.initSpec(condition));
+        result.setTotal((long) list.size());
+        List<StudentVo> vos = list.stream().map(StudentVo::ofVo).toList();
+        result.setData(vos);
+        return result;
+    }
+
     public Optional<Student> update(Student stu) {
         Student target = null;
-        Optional<Student> optional = studentRepository.findById(stu.getId());
+        Optional<Student> optional = stuRepository.findById(stu.getId());
         if (optional.isPresent()) {
             // 應該可用vo的ofStudent簡化，先放著
             Student dbStu = optional.get();
@@ -126,7 +138,7 @@ public class StudentServiceImpl implements StudentService {
             dbStu.setMail(stu.getMail());
             dbStu.setPhone(stu.getPhone());
             dbStu.setBirth(stu.getBirth());
-            target = studentRepository.save(dbStu);
+            target = stuRepository.save(dbStu);
         }
         return Optional.ofNullable(target);
     }

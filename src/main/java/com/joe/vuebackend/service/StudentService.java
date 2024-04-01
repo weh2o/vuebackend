@@ -1,9 +1,9 @@
 package com.joe.vuebackend.service;
 
+import com.joe.vuebackend.bean.HttpResult;
 import com.joe.vuebackend.bean.PageResult;
 import com.joe.vuebackend.domain.Student;
-import com.joe.vuebackend.bean.HttpResult;
-import com.joe.vuebackend.bean.PageData;
+import com.joe.vuebackend.repository.condition.StudentCondition;
 import com.joe.vuebackend.vo.StudentVo;
 
 import java.util.List;
@@ -29,9 +29,12 @@ public interface StudentService {
 
     List<Student> findAll();
 
-    PageResult<StudentVo> findAllVo(PageData pageData);
+    PageResult<StudentVo> findAllVo(StudentCondition condition);
 
     Optional<StudentVo> findOneVo(String id);
 
     HttpResult<String> remove(String id);
+
+    PageResult<StudentVo> searchByNameOrNo(StudentCondition condition);
+
 }

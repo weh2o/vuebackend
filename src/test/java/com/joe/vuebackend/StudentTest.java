@@ -1,11 +1,11 @@
 package com.joe.vuebackend;
 
 import com.joe.vuebackend.bean.HttpResult;
-import com.joe.vuebackend.bean.PageData;
 import com.joe.vuebackend.bean.PageResult;
 import com.joe.vuebackend.constant.Gender;
 import com.joe.vuebackend.domain.Student;
 import com.joe.vuebackend.repository.StudentRepository;
+import com.joe.vuebackend.repository.condition.StudentCondition;
 import com.joe.vuebackend.service.StudentService;
 import com.joe.vuebackend.vo.StudentVo;
 import lombok.Setter;
@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @SpringBootTest
 @Slf4j
@@ -86,14 +87,20 @@ public class StudentTest {
 
     @Test
     void pageTest() {
-        PageData page = new PageData();
-        page.setPage(1);
-        page.setPageSize(5);
-        page.setOrder("desc");
-        page.setProp("sex");
-        PageResult<StudentVo> result = service.findAllVo(page);
+        StudentCondition condition = new StudentCondition();
+        condition.setPage(1);
+        condition.setPageSize(5);
+        condition.setOrder("desc");
+        condition.setProp("sex");
+        PageResult<StudentVo> result = service.findAllVo(condition);
         log.info("總數: {}", result.getTotal());
         System.out.println(result);
+    }
+
+    @Test
+    void findByNameOrNo() {
+        List<Student> result = repository.findByNameOrNo("機器人0", "10003");
+        System.out.println();
     }
 
     @Test

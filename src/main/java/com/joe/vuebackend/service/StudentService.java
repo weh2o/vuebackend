@@ -1,7 +1,9 @@
 package com.joe.vuebackend.service;
 
+import com.joe.vuebackend.bean.PageResult;
 import com.joe.vuebackend.domain.Student;
-import com.joe.vuebackend.vo.HttpResult;
+import com.joe.vuebackend.bean.HttpResult;
+import com.joe.vuebackend.bean.PageData;
 import com.joe.vuebackend.vo.StudentVo;
 
 import java.util.List;
@@ -27,7 +29,7 @@ public interface StudentService {
 
     List<Student> findAll();
 
-    List<StudentVo> findAllVo();
+    PageResult<StudentVo> findAllVo(PageData pageData);
 
     Optional<StudentVo> findOneVo(String id);
 

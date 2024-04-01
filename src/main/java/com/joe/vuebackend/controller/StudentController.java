@@ -1,7 +1,9 @@
 package com.joe.vuebackend.controller;
 
+import com.joe.vuebackend.bean.PageResult;
 import com.joe.vuebackend.service.StudentService;
-import com.joe.vuebackend.vo.HttpResult;
+import com.joe.vuebackend.bean.HttpResult;
+import com.joe.vuebackend.bean.PageData;
 import com.joe.vuebackend.vo.StudentVo;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +32,9 @@ public class StudentController {
     }
 
     @GetMapping("/all")
-    public HttpResult<List<StudentVo>> getAllVo() {
-        List<StudentVo> list = studentService.findAllVo();
-        return HttpResult.success("你好", list);
+    public HttpResult<PageResult<StudentVo>> getAllVo(PageData pageData) {
+        PageResult<StudentVo> result = studentService.findAllVo(pageData);
+        return HttpResult.success("你好", result);
     }
 
     @GetMapping("/{id}")

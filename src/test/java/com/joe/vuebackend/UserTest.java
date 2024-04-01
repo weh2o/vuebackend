@@ -2,6 +2,7 @@ package com.joe.vuebackend;
 
 import com.joe.vuebackend.domain.User;
 import com.joe.vuebackend.repository.UserRepository;
+import lombok.Setter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,7 +12,7 @@ import java.util.Optional;
 @SpringBootTest
 public class UserTest {
 
-    @Autowired
+    @Setter(onMethod_ = @Autowired)
     private UserRepository repository;
 
     @Test

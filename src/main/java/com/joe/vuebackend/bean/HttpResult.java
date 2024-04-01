@@ -1,4 +1,4 @@
-package com.joe.vuebackend.vo;
+package com.joe.vuebackend.bean;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

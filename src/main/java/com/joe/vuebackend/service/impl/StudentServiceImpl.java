@@ -1,13 +1,18 @@
 package com.joe.vuebackend.service.impl;
 
+import com.joe.vuebackend.bean.HttpResult;
+import com.joe.vuebackend.bean.PageData;
+import com.joe.vuebackend.bean.PageResult;
 import com.joe.vuebackend.domain.Student;
 import com.joe.vuebackend.repository.StudentRepository;
 import com.joe.vuebackend.service.StudentService;
-import com.joe.vuebackend.vo.HttpResult;
 import com.joe.vuebackend.vo.StudentVo;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -48,9 +53,42 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<StudentVo> findAllVo() {
-        List<Student> list = studentRepository.findAll();
-        return list.stream().map(StudentVo::ofVo).toList();
+    public PageResult<StudentVo> findAllVo(PageData pageData) {
+        PageResult<StudentVo> result = new PageResult<>();
+        long count = studentRepository.count();
+        // 默認排序
+        Sort sort = Sort.by(Sort.Direction.ASC, "age");
+
+        // 定製排序
+        if (StringUtils.isNotEmpty(pageData.getProp()) &&
+                StringUtils.isNotEmpty(pageData.getOrder())
+        ) {
+            String order = pageData.getOrder().substring(0, 3);
+            Sort.Direction direction;
+            if ("asc".equals(order)) {
+                direction = Sort.Direction.ASC;
+            } else {
+                direction = Sort.Direction.DESC;
+            }
+            String prop = pageData.getProp();
+            // 性別特別處理
+            if ("sex".equals(prop)) {
+                prop = "gender";
+            }
+            sort = Sort.by(direction, prop);
+        }
+
+        Page<Student> resultPage = studentRepository.findAll(
+                PageRequest.of(
+                        pageData.getPage() - 1,
+                        pageData.getPageSize(),
+                        sort
+                )
+        );
+        result.setTotal(count);
+        List<StudentVo> list = resultPage.getContent().stream().map(StudentVo::ofVo).toList();
+        result.setData(list);
+        return result;
     }
 
     @Override

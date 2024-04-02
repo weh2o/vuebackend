@@ -49,6 +49,13 @@
             <version>3.12.0</version>
         </dependency>
 
+        <!-- token依賴 -->
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>3.8.1</version>
+        </dependency>
+
     </dependencies>
 
     <build>

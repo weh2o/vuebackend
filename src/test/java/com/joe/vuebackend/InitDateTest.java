@@ -14,7 +14,9 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Commit;
+import org.springframework.util.DigestUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +36,8 @@ class InitDateTest {
     void initUserTest() {
         User user = new User();
         user.setName("admin");
-        user.setPassword("1111");
+        String password = DigestUtils.md5DigestAsHex("1111".getBytes(StandardCharsets.UTF_8));
+        user.setPassword(password);
         userRepository.save(user);
     }
 

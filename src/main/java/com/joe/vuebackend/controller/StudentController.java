@@ -30,10 +30,10 @@ public class StudentController {
         return result;
     }
 
-    @GetMapping("/all")
-    public HttpResult<PageResult<StudentVo>> getAllVo(StudentCondition condition) {
+    @GetMapping
+    public HttpResult<PageResult<StudentVo>> getVo(StudentCondition condition) {
         PageResult<StudentVo> result = studentService.findAllVo(condition);
-        return HttpResult.success("你好", result);
+        return HttpResult.success("資料獲取成功", result);
     }
 
     @GetMapping("/{id}")

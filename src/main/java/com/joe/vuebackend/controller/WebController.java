@@ -2,7 +2,7 @@ package com.joe.vuebackend.controller;
 
 import com.joe.vuebackend.domain.User;
 import com.joe.vuebackend.service.UserService;
-import com.joe.vuebackend.vo.HttpResult;
+import com.joe.vuebackend.bean.HttpResult;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,7 +33,6 @@ public class WebController {
             result.setCode(HttpStatus.UNAUTHORIZED.value());
             result.setMsg("登入失敗，請再次確認帳號與密碼");
         }
-        System.out.println("被訪問了");
         return result;
     }
 }

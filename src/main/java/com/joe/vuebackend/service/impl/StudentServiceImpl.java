@@ -5,7 +5,7 @@ import com.joe.vuebackend.bean.PageResult;
 import com.joe.vuebackend.domain.Student;
 import com.joe.vuebackend.repository.StudentRepository;
 import com.joe.vuebackend.repository.condition.StudentCondition;
-import com.joe.vuebackend.repository.spec.StudentSearchNameOrNoSpec;
+import com.joe.vuebackend.repository.spec.StudentSpec;
 import com.joe.vuebackend.service.StudentService;
 import com.joe.vuebackend.vo.StudentVo;
 import lombok.Setter;
@@ -13,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -56,37 +55,15 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public PageResult<StudentVo> findAllVo(StudentCondition condition) {
         PageResult<StudentVo> result = new PageResult<>();
-        long count = stuRepository.count();
-        // 默認排序
-        Sort sort = Sort.by(Sort.Direction.ASC, "age");
-
-        // 定製排序
-        if (StringUtils.isNotEmpty(condition.getProp()) &&
-                StringUtils.isNotEmpty(condition.getOrder())
-        ) {
-            String order = condition.getOrder().substring(0, 3);
-            Sort.Direction direction;
-            if ("asc".equals(order)) {
-                direction = Sort.Direction.ASC;
-            } else {
-                direction = Sort.Direction.DESC;
-            }
-            String prop = condition.getProp();
-            // 性別特別處理
-            if ("sex".equals(prop)) {
-                prop = "gender";
-            }
-            sort = Sort.by(direction, prop);
-        }
 
         Page<Student> resultPage = stuRepository.findAll(
+                StudentSpec.initSpec(condition),
                 PageRequest.of(
                         condition.getPage() - 1,
-                        condition.getPageSize(),
-                        sort
+                        condition.getPageSize()
                 )
         );
-        result.setTotal(count);
+        result.setTotal(resultPage.getTotalElements());
         List<StudentVo> vos = resultPage.getContent().stream().map(StudentVo::ofVo).toList();
         result.setData(vos);
         return result;
@@ -114,11 +91,11 @@ public class StudentServiceImpl implements StudentService {
         return result;
     }
 
-    // 應該可以和findAll合併，全都用Spec寫
+    // 此方法被合併在findAllVo()，暫時放置
     @Override
     public PageResult<StudentVo> searchByNameOrNo(StudentCondition condition) {
         PageResult<StudentVo> result = new PageResult<>();
-        List<Student> list = stuRepository.findAll(StudentSearchNameOrNoSpec.initSpec(condition));
+        List<Student> list = stuRepository.findAll(StudentSpec.initSpec(condition));
         result.setTotal((long) list.size());
         List<StudentVo> vos = list.stream().map(StudentVo::ofVo).toList();
         result.setData(vos);

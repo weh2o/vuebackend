@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 
 import java.io.Serializable;
@@ -38,18 +40,11 @@ public class HttpResult<t> implements Serializable {
         return success("成功");
     }
     public static <t> HttpResult<t> success(String msg){
-        HttpResult<t> target = new HttpResult<>();
-        target.setMsg(msg);
-        target.setCode(HttpStatus.OK.value());
-        return target;
+        return success(msg, null);
     }
 
     public static <t> HttpResult<t> success(t data){
-        HttpResult<t> target = new HttpResult<>();
-        target.setMsg("成功");
-        target.setCode(HttpStatus.OK.value());
-        target.setData(data);
-        return target;
+        return success("成功", data);
     }
 
     public static <t> HttpResult<t> success(String msg, t data){
@@ -65,15 +60,32 @@ public class HttpResult<t> implements Serializable {
     }
 
     public static <t> HttpResult<t> fail(String msg){
-        HttpResult<t> target = new HttpResult<>();
-        target.setMsg(msg);
-        target.setCode(HttpStatus.BAD_REQUEST.value());
-        return target;
+        return fail(msg, null);
+    }
+
+    public static <t> HttpResult<t> fail(Integer status, String msg){
+        return fail(status, msg, null);
     }
 
     public static <t> HttpResult<t> fail(String msg, t data){
+        return fail(null, msg, data);
+    }
+    public static <t> HttpResult<t> fail(Integer status, String msg, t data){
         HttpResult<t> target = new HttpResult<>();
-        target.setCode(HttpStatus.BAD_REQUEST.value());
+
+        if (ObjectUtils.isNotEmpty(status)){
+            target.setCode(status);
+        }else {
+            target.setCode(HttpStatus.BAD_REQUEST.value());
+        }
+
+        if (StringUtils.isNotEmpty(msg)){
+            target.setMsg(msg);
+        }
+
+        if (ObjectUtils.isNotEmpty(data)){
+            target.setData(data);
+        }
         return target;
     }
 

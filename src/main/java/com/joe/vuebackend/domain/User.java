@@ -22,10 +22,17 @@ import java.time.LocalDateTime;
 public class User extends BaseEntity {
 
     /**
-     * 用戶名
+     * 使用者名稱
      */
     @Column(name = "name")
     private String name;
+
+
+    /**
+     * 帳號
+     */
+    @Column(name = "account", unique = true)
+    private String account;
 
     /**
      * 密碼

@@ -1,9 +1,12 @@
 package com.joe.vuebackend;
 
+import com.joe.vuebackend.constant.Gender;
 import com.joe.vuebackend.constant.RoleType;
 import com.joe.vuebackend.domain.Role;
+import com.joe.vuebackend.domain.Student;
 import com.joe.vuebackend.domain.User;
 import com.joe.vuebackend.repository.RoleRepository;
+import com.joe.vuebackend.repository.StudentRepository;
 import com.joe.vuebackend.repository.UserRepository;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +20,7 @@ import org.springframework.test.annotation.Commit;
 import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,14 +35,37 @@ class InitDateTest {
     @Setter(onMethod_ = @Autowired)
     private UserRepository userRepository;
 
+    @Setter(onMethod_ = @Autowired)
+    private StudentRepository stuRepository;
+
     @Test
     @Commit
-    void initUserTest() {
+    void initUser() {
         User user = new User();
-        user.setName("admin");
+        user.setAccount("admin");
         String password = DigestUtils.md5DigestAsHex("1111".getBytes(StandardCharsets.UTF_8));
         user.setPassword(password);
         userRepository.save(user);
+    }
+
+    @Test
+    void initStudent() {
+        for (int i = 0; i < 50; i++) {
+            Student target = new Student();
+            target.setName("機器人" + i);
+            target.setAge(i);
+            target.setNo(10000 + i + "");
+            if (i % 2 == 0) {
+                target.setGender(Gender.BOY);
+            } else {
+                target.setGender(Gender.GIRL);
+            }
+
+            target.setBirth(LocalDate.now());
+            target.setPhone("098710000" + i);
+            target.setMail(i + "newJJ@gmail.com");
+            stuRepository.save(target);
+        }
     }
 
     /**

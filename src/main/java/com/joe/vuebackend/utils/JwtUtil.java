@@ -31,9 +31,10 @@ public class JwtUtil {
     private static final String SECRET = "jwt_secret";
 
     /**
-     * 生成簽名(token)，五分鐘後過期
-     * @param userId
-     * @return
+     * 生成簽名(token)，一天後過期
+     *
+     * @param userId 使用者識別碼
+     * @return 密鑰token
      */
     public static String sign(String userId) {
         try {
@@ -56,8 +57,9 @@ public class JwtUtil {
 
     /**
      * 根據token獲取userId
+     *
      * @param token
-     * @return
+     * @return 使用者識別碼
      */
     public static String getUserId(String token) {
         try {
@@ -71,6 +73,7 @@ public class JwtUtil {
 
     /**
      * 校驗token
+     *
      * @param token
      * @return
      */
@@ -82,11 +85,6 @@ public class JwtUtil {
             JWTVerifier verifier = JWT.require(algorithm).build();
             // 驗證token，如果不相同會出現異常
             DecodedJWT jwt = verifier.verify(token);
-            // 獲取token中payload保存的資料。 注意: 要調用對應類型的asXxx方法
-            System.out.println(jwt.getClaim("userId").asString());
-            System.out.println(jwt.getClaim("username").asString());
-            // 獲取過期時間
-            System.out.println(jwt.getExpiresAt());
             return HttpResult.success("token 有效");
         } catch (JWTVerificationException exception) {
             return HttpResult.fail("token 無效");

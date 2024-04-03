@@ -66,26 +66,6 @@ public class StudentTest {
 
 
     @Test
-    void initData() {
-        for (int i = 0; i < 50; i++) {
-            Student target = new Student();
-            target.setName("機器人" + i);
-            target.setAge(i);
-            target.setNo(10000 + i + "");
-            if (i % 2 == 0) {
-                target.setGender(Gender.BOY);
-            } else {
-                target.setGender(Gender.GIRL);
-            }
-
-            target.setBirth(LocalDate.now());
-            target.setPhone("098710000" + i);
-            target.setMail(i + "newJJ@gmail.com");
-            repository.save(target);
-        }
-    }
-
-    @Test
     void pageTest() {
         StudentCondition condition = new StudentCondition();
         condition.setPage(1);

@@ -13,6 +13,6 @@ public class Student extends User{
     /**
      * 學生證
      */
-    @Column(name = "no")
+    @Column(name = "no", unique = true)
     private String no;
 }

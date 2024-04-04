@@ -24,4 +24,10 @@ public interface UserService {
      */
     HttpResult<String> register(RegisterInfo info);
 
+    /**
+     * 獲取使用者資料
+     * @param token
+     * @return
+     */
+    HttpResult<UserInfo> getInfo(String token);
 }

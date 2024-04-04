@@ -74,4 +74,17 @@ public class UserServiceImpl implements UserService {
         stuRepository.save(student);
         return HttpResult.success("註冊成功");
     }
+
+    @Override
+    public HttpResult<UserInfo> getInfo(String token) {
+        String id = JwtUtil.getUserId(token);
+        if (StringUtils.isNotEmpty(id)){
+            Optional<User> optional = userRepository.findById(id);
+            if (optional.isPresent()){
+                UserInfo userInfo = UserInfo.ofAll(optional.get());
+                return HttpResult.success(userInfo);
+            }
+        }
+        return HttpResult.fail("取得使用者資料失敗");
+    }
 }

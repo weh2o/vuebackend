@@ -6,6 +6,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Data
@@ -46,9 +47,30 @@ public class UserInfo {
      */
     private String mail;
 
+    /**
+     * 上次登入時間
+     */
+    private String lastLoginTime;
+
+    /**
+     * 學生證
+     */
+    private String no;
+
+    /**
+     * 地址
+     */
+    private String address;
+
     private String token;
 
 
+    /**
+     * 轉換 識別碼、姓名
+     *
+     * @param source
+     * @return
+     */
     public static UserInfo of(User source) {
         UserInfo target = new UserInfo();
         if (StringUtils.isNotEmpty(source.getId())) {
@@ -60,6 +82,12 @@ public class UserInfo {
         return target;
     }
 
+    /**
+     * 轉換全部
+     *
+     * @param source
+     * @return
+     */
     public static UserInfo ofAll(User source) {
         UserInfo target = of(source);
 
@@ -85,6 +113,18 @@ public class UserInfo {
         if (StringUtils.isNotEmpty(source.getMail())) {
             target.setMail(source.getMail());
         }
+
+        if (ObjectUtils.isNotEmpty(source.getLastLoginTime())){
+            LocalDateTime sourceLastLoginTime = source.getLastLoginTime();
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+            String formatDateTime = timeFormatter.format(sourceLastLoginTime);
+            target.setLastLoginTime(formatDateTime);
+        }
+
+        if (StringUtils.isNotEmpty(source.getAddress())){
+            target.setAddress(source.getAddress());
+        }
+
         return target;
     }
 

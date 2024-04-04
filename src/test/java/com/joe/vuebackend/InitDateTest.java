@@ -1,13 +1,17 @@
 package com.joe.vuebackend;
 
 import com.joe.vuebackend.constant.Gender;
+import com.joe.vuebackend.constant.IdentityType;
 import com.joe.vuebackend.constant.RoleType;
+import com.joe.vuebackend.domain.Identity;
 import com.joe.vuebackend.domain.Role;
 import com.joe.vuebackend.domain.Student;
 import com.joe.vuebackend.domain.User;
+import com.joe.vuebackend.repository.IdentityRepository;
 import com.joe.vuebackend.repository.RoleRepository;
 import com.joe.vuebackend.repository.StudentRepository;
 import com.joe.vuebackend.repository.UserRepository;
+import com.joe.vuebackend.utils.RoleHelper;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.MethodOrderer;
@@ -22,7 +26,9 @@ import org.springframework.util.DigestUtils;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @SpringBootTest
 @Slf4j
@@ -38,19 +44,125 @@ class InitDateTest {
     @Setter(onMethod_ = @Autowired)
     private StudentRepository stuRepository;
 
+    @Setter(onMethod_ = @Autowired)
+    private IdentityRepository identityRepository;
+
+
+    /**
+     * 初始化身分
+     */
+    @Test
+    @Commit
+    void initIdentity() {
+        ArrayList<Identity> list = new ArrayList<>();
+        for (IdentityType identityType : IdentityType.values()) {
+            Identity target = new Identity();
+            target.setCode(identityType.getCode());
+            target.setName(identityType.getText());
+            target.setNameZh(identityType.getTextZh());
+            list.add(target);
+        }
+        identityRepository.saveAll(list);
+    }
+
+
+    /**
+     * 初始化角色(權限)
+     */
+    @Test
+    @Commit
+    @Order(1)
+    void initRole() {
+        List<Role> roleList = new ArrayList<>();
+        for (RoleType roleType : RoleType.values()) {
+            Role role = new Role();
+            role.setName(roleType.getText());
+            role.setNameZh(roleType.getTextZh());
+            roleList.add(role);
+        }
+        roleRepository.saveAll(roleList);
+    }
+
+    /**
+     * 初始化使用者
+     */
     @Test
     @Commit
     void initUser() {
         User user = new User();
         user.setAccount("admin");
         user.setName("超級管理員");
+        user.setGender(Gender.BOY);
+        user.setMail("admin@gmail.com");
+        user.setPhone("0988123456");
+        user.setAddress("無處不在");
+        user.setBirth(LocalDate.of(2024, 4, 1));
         String password = DigestUtils.md5DigestAsHex("1111".getBytes(StandardCharsets.UTF_8));
         user.setPassword(password);
-        userRepository.save(user);
+
+        // 角色
+        List<Role> roleList = RoleHelper.getRoleList(Arrays.asList(
+                RoleType.ADMIN.name(),
+                RoleType.STUDENT.name()
+        ));
+        user.setRoles(roleList);
+
+        User dbUser = userRepository.save(user);
+
+        // 身分
+        Optional<Identity> optional = identityRepository.findByName(IdentityType.ADMIN.getText());
+        if (optional.isPresent()) {
+            Identity identity = optional.get();
+            List<User> userList = identity.getUserList();
+            dbUser.setIdentity(identity);
+            userList.add(dbUser);
+            identity.setUserList(userList);
+            identityRepository.save(identity);
+        }
     }
 
+    /**
+     * 初始化學生
+     */
     @Test
+    @Commit
     void initStudent() {
+        Student stu = new Student();
+        stu.setAccount("stu");
+        stu.setName("超級學生");
+        stu.setGender(Gender.BOY);
+        stu.setMail("stu@gmail.com");
+        stu.setPhone("0988123456");
+        stu.setAddress("睡在學校");
+        stu.setBirth(LocalDate.of(2024, 4, 1));
+        String password = DigestUtils.md5DigestAsHex("1111".getBytes(StandardCharsets.UTF_8));
+        stu.setPassword(password);
+
+        // 權限
+        List<Role> roleList = RoleHelper.getRoleList(Arrays.asList(
+                RoleType.STUDENT.name()
+        ));
+        stu.setRoles(roleList);
+        Student dbStu = stuRepository.save(stu);
+
+        // 身分
+        Optional<Identity> optional = identityRepository.findByName(IdentityType.STUDENT.getText());
+        if (optional.isPresent()) {
+            Identity identity = optional.get();
+            List<User> userList = identity.getUserList();
+            dbStu.setIdentity(identity);
+            userList.add(dbStu);
+            identity.setUserList(userList);
+            identityRepository.save(identity);
+        }
+
+    }
+
+    /**
+     * 初始化很多學生
+     */
+    @Test
+    void initManyStudent() {
         for (int i = 0; i < 50; i++) {
             Student target = new Student();
             target.setName("機器人" + i);
@@ -67,23 +179,6 @@ class InitDateTest {
             target.setMail(i + "newJJ@gmail.com");
             stuRepository.save(target);
         }
-    }
-
-    /**
-     * 初始化資料庫中的角色
-     */
-    @Test
-    @Commit
-    @Order(1)
-    void initRole() {
-        List<Role> roleList = new ArrayList<>();
-        for (RoleType roleType : RoleType.values()) {
-            Role role = new Role();
-            role.setName(roleType.getText());
-            role.setNameZh(roleType.getTextZh());
-            roleList.add(role);
-        }
-        roleRepository.saveAll(roleList);
     }
 }
 

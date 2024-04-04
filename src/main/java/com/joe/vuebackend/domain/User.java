@@ -71,6 +71,12 @@ public class User extends BaseEntity {
     @Column(name = "mail")
     private String mail;
 
+    /**
+     * 上次登入時間
+     */
+    @Column(name = "last_login_time")
+    private LocalDateTime lastLoginTime;
+
 //    /**
 //     * 用戶角色(權限)資料
 //     */

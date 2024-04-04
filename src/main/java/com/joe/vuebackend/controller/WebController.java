@@ -5,6 +5,7 @@ import com.joe.vuebackend.bean.RegisterInfo;
 import com.joe.vuebackend.domain.User;
 import com.joe.vuebackend.service.UserService;
 import com.joe.vuebackend.utils.JwtUtil;
+import com.joe.vuebackend.vo.UserInfo;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class WebController {
     private UserService userService;
 
     @PostMapping("/login")
-    public HttpResult<String> login(@RequestBody User user) {
+    public HttpResult<UserInfo> login(@RequestBody User user) {
         return userService.login(user);
     }
 

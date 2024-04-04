@@ -1,9 +1,11 @@
 package com.joe.vuebackend;
 
 import com.joe.vuebackend.bean.HttpResult;
+import com.joe.vuebackend.bean.RegisterInfo;
 import com.joe.vuebackend.controller.WebController;
 import com.joe.vuebackend.domain.User;
 import com.joe.vuebackend.utils.JwtUtil;
+import com.joe.vuebackend.vo.UserInfo;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -20,13 +22,12 @@ public class webTest {
     @Setter(onMethod_ = @Autowired)
     WebController webController;
 
-
     @Test
     void loginTest() {
         User user = new User();
         user.setName("admin");
         user.setPassword("1111");
-        HttpResult<String> result = webController.login(user);
+        HttpResult<UserInfo> result = webController.login(user);
         log.error(result.toString());
     }
 
@@ -45,7 +46,14 @@ public class webTest {
 
         String id = JwtUtil.getUserId(token);
         System.out.println();
+    }
 
-
+    @Test
+    void registerTest() {
+        RegisterInfo info = new RegisterInfo();
+        info.setName("測試");
+        info.setPassword("33456");
+        info.setNo("33456");
+        webController.register(info);
     }
 }

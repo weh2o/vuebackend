@@ -43,6 +43,7 @@ class InitDateTest {
     void initUser() {
         User user = new User();
         user.setAccount("admin");
+        user.setName("超級管理員");
         String password = DigestUtils.md5DigestAsHex("1111".getBytes(StandardCharsets.UTF_8));
         user.setPassword(password);
         userRepository.save(user);

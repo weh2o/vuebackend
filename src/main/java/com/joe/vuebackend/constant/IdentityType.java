@@ -5,7 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public enum RoleType {
+public enum IdentityType {
     ADMIN("1", "ADMIN", "系統管理者"),
 
     TEACHER("2", "TEACHER", "老師"),
@@ -32,4 +32,3 @@ public enum RoleType {
     @Getter
     private final String textZh;
 }
-

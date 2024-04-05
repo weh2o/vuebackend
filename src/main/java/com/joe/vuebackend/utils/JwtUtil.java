@@ -7,6 +7,7 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.joe.vuebackend.bean.HttpResult;
+import com.joe.vuebackend.vo.UserInfo;
 
 import java.util.Date;
 
@@ -46,7 +47,28 @@ public class JwtUtil {
             return JWT.create()
                     // 將 user id 保存到 token 裡面
                     .withAudience(userId)
-                    // 五分鐘後token過期
+                    .withClaim("identity", "xx")
+                    // token過期時間
+                    .withExpiresAt(date)
+                    // token 的密鑰
+                    .sign(algorithm);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static String sign(UserInfo userInfo) {
+        try {
+            // 當前時間 + 5分鐘
+            Date date = new Date(System.currentTimeMillis() + EXPIRE_TIME_1_DAY);
+            // 設置密鑰，並選擇加密方式
+            Algorithm algorithm = Algorithm.HMAC256(SECRET);
+            // 生成token
+            return JWT.create()
+                    // 將 user id 保存到 token 裡面
+                    .withAudience(userInfo.getId())
+                    .withClaim("identity", userInfo.getIdentity())
+                    // token過期時間
                     .withExpiresAt(date)
                     // token 的密鑰
                     .sign(algorithm);
@@ -88,6 +110,13 @@ public class JwtUtil {
             return HttpResult.success("token 有效");
         } catch (JWTVerificationException exception) {
             return HttpResult.fail("token 無效");
+        }
+    }
+    public static String getIdentity(String token) {
+        try {
+            return JWT.decode(token).getClaim("identity").asString();
+        } catch (JWTDecodeException e) {
+            return null;
         }
     }
 }

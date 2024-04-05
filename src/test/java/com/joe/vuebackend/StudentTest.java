@@ -3,7 +3,10 @@ package com.joe.vuebackend;
 import com.joe.vuebackend.bean.HttpResult;
 import com.joe.vuebackend.bean.PageResult;
 import com.joe.vuebackend.constant.Gender;
+import com.joe.vuebackend.constant.IdentityType;
+import com.joe.vuebackend.domain.Identity;
 import com.joe.vuebackend.domain.Student;
+import com.joe.vuebackend.repository.IdentityRepository;
 import com.joe.vuebackend.repository.StudentRepository;
 import com.joe.vuebackend.repository.condition.StudentCondition;
 import com.joe.vuebackend.service.StudentService;
@@ -13,9 +16,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @SpringBootTest
 @Slf4j
@@ -27,27 +32,44 @@ public class StudentTest {
     @Setter(onMethod_ = @Autowired)
     private StudentService service;
 
+    @Setter(onMethod_ = @Autowired)
+    private IdentityRepository identityRepository;
+
+    // 初始化沒有帳號、密碼的學生資料
     @Test
-    void add() {
+    @Commit
+    void initNoAccountStu() {
+        Optional<Identity> optional = identityRepository.findByName(IdentityType.STUDENT.getText());
+
         Student target = new Student();
         target.setName("新之助");
         target.setAge(6);
-        target.setNo("3345678");
+        target.setNo("1");
         target.setGender(Gender.BOY);
         target.setBirth(LocalDate.now());
         target.setPhone("0987123456");
         target.setMail("newJJ@gmail.com");
-        repository.save(target);
+        Student dbStu1 = repository.save(target);
 
         Student target2 = new Student();
         target2.setName("美牙");
         target2.setAge(25);
-        target2.setNo("6597132");
+        target2.setNo("2");
         target2.setGender(Gender.GIRL);
         target2.setBirth(LocalDate.now());
         target2.setPhone("0987777666");
         target2.setMail("beauti@gmail.com");
-        repository.save(target2);
+        Student dbStu2 = repository.save(target2);
+        // 給予學生身分
+        if (optional.isPresent()) {
+            Identity identity = optional.get();
+            identity.addUserList(dbStu1);
+            identity.addUserList(dbStu2);
+            dbStu1.setIdentity(identity);
+            dbStu2.setIdentity(identity);
+            repository.save(dbStu1);
+            repository.save(dbStu2);
+        }
     }
 
     @Test

@@ -47,5 +47,11 @@ public class BaseEntity implements Serializable {
      */
     @Column(name = "note", length = 4000)
     private String note;
+
+    /**
+     * 是否停用
+     */
+    @Column(name = "disable")
+    private Boolean disable;
 }
 

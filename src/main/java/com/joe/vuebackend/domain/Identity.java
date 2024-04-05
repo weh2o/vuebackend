@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 身份
@@ -42,4 +43,13 @@ public class Identity extends BaseEntity {
     )
     private List<User> userList;
 
+    /**
+     * 添加屬於該身分的使用者
+     * @param user
+     */
+    public void addUserList(User user){
+        if (Objects.nonNull(userList)){
+            userList.add(user);
+        }
+    }
 }

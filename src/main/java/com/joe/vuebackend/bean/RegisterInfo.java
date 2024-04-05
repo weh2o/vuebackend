@@ -24,7 +24,14 @@ public class RegisterInfo {
     private String password;
 
     /**
-     * 學生證
+     * 學生證 or 教師證
      */
     private String no;
+
+
+    /**
+     * 身分
+     */
+    private String identity;
+
 }

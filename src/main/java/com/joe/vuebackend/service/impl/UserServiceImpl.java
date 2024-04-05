@@ -2,12 +2,15 @@ package com.joe.vuebackend.service.impl;
 
 
 import com.joe.vuebackend.bean.HttpResult;
+import com.joe.vuebackend.bean.LoginInfo;
+import com.joe.vuebackend.bean.PasswordInfo;
 import com.joe.vuebackend.bean.RegisterInfo;
 import com.joe.vuebackend.constant.IdentityType;
 import com.joe.vuebackend.domain.*;
 import com.joe.vuebackend.repository.*;
 import com.joe.vuebackend.service.UserService;
 import com.joe.vuebackend.utils.JwtUtil;
+import com.joe.vuebackend.utils.UserHelper;
 import com.joe.vuebackend.vo.UserInfo;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -40,30 +43,24 @@ public class UserServiceImpl implements UserService {
     private IdentityRepository identityRepository;
 
     @Override
-    public HttpResult<UserInfo> login(User user) {
-        UserInfo userInfo = new UserInfo();
-
-
-        Optional<User> dbResult = userRepository.findByAccount(user.getAccount());
+    public HttpResult<UserInfo> login(LoginInfo info) {
+        Optional<User> dbResult = userRepository.findByAccount(info.getAccount());
         if (dbResult.isPresent()) {
             User dbUser = dbResult.get();
-            String password = DigestUtils.md5DigestAsHex(user.getPassword().getBytes(StandardCharsets.UTF_8));
+            String password = UserHelper.passwordEncryption(info.getPassword());
             // 登入成功
             if (dbUser.getPassword().equals(password)) {
-                String token = JwtUtil.sign(dbUser.getId());
+                UserInfo userInfo = UserInfo.of(dbUser);
+                UserInfo.setSpecial(userInfo, dbUser);
+                String token = JwtUtil.sign(userInfo);
                 userInfo.setToken(token);
-                userInfo.setName(dbUser.getName());
                 // 上次登入時間
                 dbUser.setLastLoginTime(LocalDateTime.now());
                 userRepository.save(dbUser);
+                return HttpResult.success("登入成功", userInfo);
             }
         }
-
-        if (StringUtils.isNotEmpty(userInfo.getToken())) {
-            return HttpResult.success("登入成功", userInfo);
-        } else {
-            return HttpResult.fail(HttpStatus.UNAUTHORIZED.value(), "登入失敗，請再次確認使用者名稱與密碼");
-        }
+        return HttpResult.fail(HttpStatus.UNAUTHORIZED.value(), "登入失敗，請再次確認使用者名稱與密碼");
     }
 
     @Override
@@ -85,7 +82,7 @@ public class UserServiceImpl implements UserService {
                 isNew = false;
             }
             student.setAccount(info.getAccount());
-            String password = DigestUtils.md5DigestAsHex(info.getPassword().getBytes(StandardCharsets.UTF_8));
+            String password = UserHelper.passwordEncryption(info.getPassword());
             student.setPassword(password);
             Student resultStu = stuRepository.save(student);
 
@@ -133,7 +130,7 @@ public class UserServiceImpl implements UserService {
             }
             // 註冊操作
             target.setAccount(info.getAccount());
-            String password = DigestUtils.md5DigestAsHex(info.getPassword().getBytes(StandardCharsets.UTF_8));
+            String password = UserHelper.passwordEncryption(info.getPassword());
             target.setPassword(password);
             Teacher resultTeacher = teacherRepository.save(target);
 
@@ -163,10 +160,30 @@ public class UserServiceImpl implements UserService {
         if (StringUtils.isNotEmpty(id)) {
             Optional<User> optional = userRepository.findById(id);
             if (optional.isPresent()) {
-                UserInfo userInfo = UserInfo.ofAll(optional.get());
+                User dbUser = optional.get();
+                UserInfo userInfo = UserInfo.ofAll(dbUser);
+                UserInfo.setSpecial(userInfo, dbUser);
                 return HttpResult.success(userInfo);
             }
         }
         return HttpResult.fail("取得使用者資料失敗");
+    }
+
+    @Override
+    public HttpResult<String> updatePassword(String id, PasswordInfo pswInfo) {
+        Optional<User> optional = userRepository.findById(id);
+        if (optional.isPresent()){
+            User user = optional.get();
+            String dbOldPass = user.getPassword();
+            String inputOldPass = UserHelper.passwordEncryption(pswInfo.getOldPassword());
+            // 密碼一致，修改成新密碼
+            if (dbOldPass.equals(inputOldPass)){
+                String inputNewPass = UserHelper.passwordEncryption(pswInfo.getNewPassword());
+                user.setPassword(inputNewPass);
+                userRepository.save(user);
+                return HttpResult.success("密碼修改成功");
+            }
+        }
+        return HttpResult.fail("密碼修改失敗，請確定原密碼是否正確");
     }
 }

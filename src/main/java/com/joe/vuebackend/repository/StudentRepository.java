@@ -15,4 +15,6 @@ public interface StudentRepository
     Optional<Student> findByName(String name);
 
     Optional<Student> findByNo(String no);
+
+    Optional<Student> findByAccount(String account);
 }

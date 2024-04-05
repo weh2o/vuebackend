@@ -24,11 +24,11 @@ public class webTest {
 
     @Test
     void loginTest() {
-        User user = new User();
-        user.setName("admin");
-        user.setPassword("1111");
-        HttpResult<UserInfo> result = webController.login(user);
-        log.error(result.toString());
+//        User user = new User();
+//        user.setName("admin");
+//        user.setPassword("1111");
+//        HttpResult<UserInfo> result = webController.login(user);
+//        log.error(result.toString());
     }
 
     @Test

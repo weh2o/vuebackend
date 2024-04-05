@@ -10,4 +10,6 @@ public interface TeacherRepository
         extends JpaRepository<Teacher, String>, JpaSpecificationExecutor<Teacher> {
 
     Optional<Teacher> findByNo_No(String no);
+
+    Optional<Teacher> findByAccount(String account);
 }

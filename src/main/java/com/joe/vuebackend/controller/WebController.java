@@ -1,8 +1,8 @@
 package com.joe.vuebackend.controller;
 
 import com.joe.vuebackend.bean.HttpResult;
+import com.joe.vuebackend.bean.LoginInfo;
 import com.joe.vuebackend.bean.RegisterInfo;
-import com.joe.vuebackend.domain.User;
 import com.joe.vuebackend.service.UserService;
 import com.joe.vuebackend.utils.JwtUtil;
 import com.joe.vuebackend.vo.UserInfo;
@@ -18,8 +18,8 @@ public class WebController {
     private UserService userService;
 
     @PostMapping("/login")
-    public HttpResult<UserInfo> login(@RequestBody User user) {
-        return userService.login(user);
+    public HttpResult<UserInfo> login(@RequestBody LoginInfo info) {
+        return userService.login(info);
     }
 
     @PostMapping("/register")

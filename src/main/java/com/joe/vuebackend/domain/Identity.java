@@ -2,6 +2,7 @@ package com.joe.vuebackend.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.Objects;
@@ -12,6 +13,7 @@ import java.util.Objects;
 @Data
 @Table(name = "j_identity")
 @Entity
+@ToString(exclude = "userList")
 public class Identity extends BaseEntity {
 
 
@@ -45,10 +47,11 @@ public class Identity extends BaseEntity {
 
     /**
      * 添加屬於該身分的使用者
+     *
      * @param user
      */
-    public void addUserList(User user){
-        if (Objects.nonNull(userList)){
+    public void addUserList(User user) {
+        if (Objects.nonNull(userList)) {
             userList.add(user);
         }
     }

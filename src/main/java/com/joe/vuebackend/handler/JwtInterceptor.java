@@ -6,6 +6,7 @@ import com.joe.vuebackend.utils.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -32,12 +33,12 @@ public class JwtInterceptor implements HandlerInterceptor {
 
         // 驗證token
         String token = request.getHeader("token");
-
-        HttpResult<String> result = JwtUtil.checkSign(token);
-        if (HttpStatus.OK.value() == result.getCode()) {
-            return true;
+        if (StringUtils.isNotEmpty(token)){
+            HttpResult<String> result = JwtUtil.checkSign(token);
+            if (HttpStatus.OK.value() == result.getCode()) {
+                return true;
+            }
         }
-
         // 沒token，代表沒登入回傳401給前端
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType("application/json;charset=utf-8");

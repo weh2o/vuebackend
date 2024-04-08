@@ -4,6 +4,12 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * 角色權限類型
+ */
 @RequiredArgsConstructor
 public enum RoleType {
     ADMIN("1", "ADMIN", "系統管理者"),
@@ -31,5 +37,18 @@ public enum RoleType {
     @NonNull
     @Getter
     private final String textZh;
+
+    /**
+     * 獲取所有角色權限英文名稱
+     * @return
+     */
+    public static List<String> getAllText() {
+        RoleType[] values = RoleType.values();
+        ArrayList<String> target = new ArrayList<>();
+        for (RoleType value : values) {
+            target.add(value.getText());
+        }
+        return target;
+    }
 }
 

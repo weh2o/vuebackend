@@ -3,14 +3,9 @@ package com.joe.vuebackend;
 import com.joe.vuebackend.constant.Gender;
 import com.joe.vuebackend.constant.IdentityType;
 import com.joe.vuebackend.constant.RoleType;
-import com.joe.vuebackend.domain.Identity;
-import com.joe.vuebackend.domain.Role;
-import com.joe.vuebackend.domain.Student;
-import com.joe.vuebackend.domain.User;
-import com.joe.vuebackend.repository.IdentityRepository;
-import com.joe.vuebackend.repository.RoleRepository;
-import com.joe.vuebackend.repository.StudentRepository;
-import com.joe.vuebackend.repository.UserRepository;
+import com.joe.vuebackend.domain.*;
+import com.joe.vuebackend.repository.*;
+import com.joe.vuebackend.utils.MenuHelper;
 import com.joe.vuebackend.utils.RoleHelper;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -47,12 +42,19 @@ class InitDateTest {
     @Setter(onMethod_ = @Autowired)
     private IdentityRepository identityRepository;
 
+    @Setter(onMethod_ = @Autowired)
+    private TeacherNoRepository teacherNoRepository;
+
+    @Setter(onMethod_ = @Autowired)
+    private TeacherRepository teacherRepository;
+
 
     /**
      * 初始化身分
      */
     @Test
     @Commit
+    @Order(1)
     void initIdentity() {
         ArrayList<Identity> list = new ArrayList<>();
         for (IdentityType identityType : IdentityType.values()) {
@@ -71,7 +73,7 @@ class InitDateTest {
      */
     @Test
     @Commit
-    @Order(1)
+    @Order(2)
     void initRole() {
         List<Role> roleList = new ArrayList<>();
         for (RoleType roleType : RoleType.values()) {
@@ -83,12 +85,47 @@ class InitDateTest {
         roleRepository.saveAll(roleList);
     }
 
+    @Test
+    @Commit
+    @Order(3)
+    void initMenu() {
+        MenuHelper.build(
+                "首頁",
+                "/home",
+                "House",
+                0,
+                RoleType.getAllText()
+        );
+
+        MenuHelper.build(
+                "學生管理",
+                "/studentManagement",
+                "User",
+                1,
+                List.of(RoleType.ADMIN.getText(),
+                        RoleType.TEACHER.getText()
+                )
+        );
+
+        MenuHelper.build(
+                "課程管理",
+                "/course",
+                "Memo",
+                2,
+                List.of(RoleType.ADMIN.getText(),
+                        RoleType.TEACHER.getText(),
+                        RoleType.STUDENT.getText()
+                )
+        );
+    }
+
     /**
-     * 初始化使用者
+     * 初始化使用者 - 管理員
      */
     @Test
     @Commit
-    void initUser() {
+    @Order(4)
+    void initAdmin() {
         User user = new User();
         user.setAccount("admin");
         user.setName("超級管理員");
@@ -100,7 +137,7 @@ class InitDateTest {
         String password = DigestUtils.md5DigestAsHex("1111".getBytes(StandardCharsets.UTF_8));
         user.setPassword(password);
 
-        // 角色
+        // 角色權限
         List<Role> roleList = RoleHelper.getRoleList(Arrays.asList(
                 RoleType.ADMIN.name(),
                 RoleType.STUDENT.name()
@@ -126,6 +163,7 @@ class InitDateTest {
      */
     @Test
     @Commit
+    @Order(5)
     void initStudent() {
         Student stu = new Student();
         stu.setAccount("stu");
@@ -179,6 +217,35 @@ class InitDateTest {
             target.setMail(i + "newJJ@gmail.com");
             stuRepository.save(target);
         }
+    }
+
+    @Test
+    void initTeacherNo() {
+        TeacherNo tNo = new TeacherNo();
+        tNo.setNo("0000");
+        tNo.setAvailable(Boolean.TRUE);
+        teacherNoRepository.save(tNo);
+
+        for (int i = 0; i < 5; i++) {
+            TeacherNo no = new TeacherNo();
+            no.setNo("t" + 100 + i);
+            no.setAvailable(Boolean.TRUE);
+            teacherNoRepository.save(no);
+        }
+    }
+
+    @Test
+    @Commit
+    void initTeacher(){
+        Teacher teacher = new Teacher();
+        teacher.setAccount("teacher1");
+        teacher.setPassword("1111");
+        Optional<TeacherNo> no = teacherNoRepository.findByNo("0000");
+        Teacher dbT = teacherRepository.save(teacher);
+        if (no.isPresent()){
+            dbT.setNo(no.get());
+        }
+        teacherRepository.save(dbT);
     }
 }
 

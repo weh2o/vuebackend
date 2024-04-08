@@ -3,7 +3,9 @@ package com.joe.vuebackend.vo;
 import com.joe.vuebackend.domain.Student;
 import com.joe.vuebackend.domain.Teacher;
 import com.joe.vuebackend.domain.User;
+import com.joe.vuebackend.utils.RoleHelper;
 import lombok.Data;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -73,6 +75,11 @@ public class UserInfo {
      */
     private String identity;
 
+    /**
+     * 角色權限
+     */
+    private String roles;
+
     private String token;
 
 
@@ -95,6 +102,11 @@ public class UserInfo {
         // 身分
         if (Objects.nonNull(source.getIdentity())) {
             target.setIdentity(source.getIdentity().getCode());
+        }
+        // 角色權限
+        if (CollectionUtils.isNotEmpty(source.getRoles())) {
+            String strRoles = RoleHelper.ofJoinName(source.getRoles());
+            target.setRoles(strRoles);
         }
         return target;
     }

@@ -10,6 +10,7 @@ import com.joe.vuebackend.bean.HttpResult;
 import com.joe.vuebackend.vo.UserInfo;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * JWT工具類
@@ -68,27 +69,12 @@ public class JwtUtil {
                     // 將 user id 保存到 token 裡面
                     .withAudience(userInfo.getId())
                     .withClaim("identity", userInfo.getIdentity())
+                    .withClaim("roles", userInfo.getRoles())
                     // token過期時間
                     .withExpiresAt(date)
                     // token 的密鑰
                     .sign(algorithm);
         } catch (Exception e) {
-            return null;
-        }
-    }
-
-    /**
-     * 根據token獲取userId
-     *
-     * @param token
-     * @return 使用者識別碼
-     */
-    public static String getUserId(String token) {
-        try {
-            // 據token獲取userId
-            String userId = JWT.decode(token).getAudience().get(0);
-            return userId;
-        } catch (JWTDecodeException e) {
             return null;
         }
     }
@@ -112,9 +98,47 @@ public class JwtUtil {
             return HttpResult.fail("token 無效");
         }
     }
+
+    /**
+     * 根據token獲取userId
+     *
+     * @param token
+     * @return 使用者識別碼
+     */
+    public static String getUserId(String token) {
+        try {
+            // 據token獲取userId
+            String userId = JWT.decode(token).getAudience().get(0);
+            return userId;
+        } catch (JWTDecodeException e) {
+            return null;
+        }
+    }
+
+    /**
+     * 獲取Identity身分
+     *
+     * @param token
+     * @return
+     */
     public static String getIdentity(String token) {
         try {
             return JWT.decode(token).getClaim("identity").asString();
+        } catch (JWTDecodeException e) {
+            return null;
+        }
+    }
+
+    /**
+     * 獲取角色權限英文名List
+     *
+     * @param token
+     * @return
+     */
+    public static List<String> getRolesName(String token) {
+        try {
+            String rolesStr = JWT.decode(token).getClaim("roles").asString();
+            return RoleHelper.splitRolesStr(rolesStr);
         } catch (JWTDecodeException e) {
             return null;
         }

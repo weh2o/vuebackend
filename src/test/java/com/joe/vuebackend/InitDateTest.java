@@ -130,6 +130,7 @@ class InitDateTest {
         user.setAccount("admin");
         user.setName("超級管理員");
         user.setGender(Gender.BOY);
+        user.setBirth(LocalDate.of(2000, 1, 1));
         user.setMail("admin@gmail.com");
         user.setPhone("0988123456");
         user.setAddress("無處不在");

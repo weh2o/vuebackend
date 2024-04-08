@@ -9,7 +9,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 帳號
@@ -116,4 +118,13 @@ public class User extends BaseEntity {
     )
     private Identity identity;
 
+
+    public Integer getAge() {
+        if (Objects.nonNull(birth)){
+            LocalDate now = LocalDate.now();
+            Period period = Period.between(birth, now);
+            return period.getYears();
+        }
+        return null;
+    }
 }

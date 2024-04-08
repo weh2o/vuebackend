@@ -52,8 +52,6 @@ public class StudentVo {
         }
         // 性別
         if (ObjectUtils.isNotEmpty(source.getGender())) {
-
-            String code = source.getGender().getCode();
             target.setSex(source.getGender().getCode());
         }
         // 學生證

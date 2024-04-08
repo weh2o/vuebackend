@@ -17,13 +17,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class UserServiceImpl implements UserService {
 
 
@@ -172,12 +172,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public HttpResult<String> updatePassword(String id, PasswordInfo pswInfo) {
         Optional<User> optional = userRepository.findById(id);
-        if (optional.isPresent()){
+        if (optional.isPresent()) {
             User user = optional.get();
             String dbOldPass = user.getPassword();
             String inputOldPass = UserHelper.passwordEncryption(pswInfo.getOldPassword());
             // 密碼一致，修改成新密碼
-            if (dbOldPass.equals(inputOldPass)){
+            if (dbOldPass.equals(inputOldPass)) {
                 String inputNewPass = UserHelper.passwordEncryption(pswInfo.getNewPassword());
                 user.setPassword(inputNewPass);
                 userRepository.save(user);

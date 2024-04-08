@@ -53,5 +53,11 @@ public class BaseEntity implements Serializable {
      */
     @Column(name = "disable")
     private Boolean disable;
+
+    /**
+     * 排序
+     */
+    @Column(name = "sort")
+    private Integer sort;
 }
 

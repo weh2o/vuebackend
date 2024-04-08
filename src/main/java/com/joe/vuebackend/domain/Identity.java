@@ -19,18 +19,21 @@ public class Identity extends BaseEntity {
 
     /**
      * 身分編號
+     * @see com.joe.vuebackend.constant.IdentityType
      */
     @Column(name = "code", unique = true)
     private String code;
 
     /**
      * 身分名稱
+     * @see com.joe.vuebackend.constant.IdentityType
      */
     @Column(name = "name")
     private String name;
 
     /**
      * 身分名稱中文
+     * @see com.joe.vuebackend.constant.IdentityType
      */
     @Column(name = "name_zh")
     private String nameZh;

@@ -1,5 +1,6 @@
 package com.joe.vuebackend.vo;
 
+import com.joe.vuebackend.constant.Gender;
 import com.joe.vuebackend.domain.Student;
 import com.joe.vuebackend.domain.Teacher;
 import com.joe.vuebackend.domain.User;
@@ -9,8 +10,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
@@ -81,6 +81,10 @@ public class UserInfo {
     private String roles;
 
     private String token;
+
+    private String oldPassword;
+
+    private String newPassword;
 
 
     /**
@@ -169,6 +173,63 @@ public class UserInfo {
         } else if (source instanceof Teacher teacher) {
             userInfo.setNo(teacher.getNo().getNo());
         }
+    }
+
+    public static User ofUser(UserInfo source) {
+        User target = new User();
+
+        // 識別碼
+        if (StringUtils.isNotEmpty(source.getId())) {
+            target.setId(source.getId());
+        }
+
+        // 姓名
+        if (StringUtils.isNotEmpty(source.getName())) {
+            target.setName(source.getName());
+        }
+
+        // 年紀
+        if (Objects.nonNull(source.getAge())) {
+            target.setAge(source.getAge());
+        }
+
+        // 性別
+        if (StringUtils.isNotEmpty(source.getSex())) {
+            for (Gender gender : Gender.values()) {
+                // 判斷哪個資料跟和stu裡的一樣，將其返回
+                if (gender.getCode().equals(source.getSex())) {
+                    target.setGender(gender);
+                }
+            }
+        }
+
+        // 生日
+        if (StringUtils.isNotEmpty(source.getBirth())) {
+            String sourceBirth = source.getBirth();
+            LocalDate stuBirth;
+            if (sourceBirth.length() != 10) {
+                ZonedDateTime taiwanTime = Instant.parse(sourceBirth).atZone(ZoneId.of("Asia/Taipei"));
+                stuBirth = taiwanTime.toLocalDate();
+            } else {
+                stuBirth = LocalDate.parse(sourceBirth);
+            }
+            target.setBirth(stuBirth);
+        }
+
+        // 電話
+        if (StringUtils.isNotEmpty(source.getPhone())) {
+            target.setPhone(source.getPhone());
+        }
+        // 信箱
+        if (StringUtils.isNotEmpty(source.getMail())) {
+            target.setMail(source.getMail());
+        }
+
+        // 地址
+        if (StringUtils.isNotEmpty(source.getAddress())) {
+            target.setAddress(source.getAddress());
+        }
+        return target;
     }
 
 }

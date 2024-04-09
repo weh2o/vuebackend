@@ -5,6 +5,7 @@ import com.joe.vuebackend.bean.PageResult;
 import com.joe.vuebackend.domain.Student;
 import com.joe.vuebackend.repository.condition.StudentCondition;
 import com.joe.vuebackend.vo.StudentVo;
+import com.joe.vuebackend.vo.UserInfo;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,5 +37,14 @@ public interface StudentService {
     HttpResult<String> remove(String id);
 
     PageResult<StudentVo> searchByNameOrNo(StudentCondition condition);
+
+    /**
+     * 修改學生基本資料
+     *
+     * @param stu      被修改的學生
+     * @param userInfo 新的資本資料
+     * @return
+     */
+    HttpResult<String> updateInfo(Student stu, UserInfo userInfo);
 
 }

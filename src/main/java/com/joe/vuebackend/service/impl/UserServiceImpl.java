@@ -3,11 +3,12 @@ package com.joe.vuebackend.service.impl;
 
 import com.joe.vuebackend.bean.HttpResult;
 import com.joe.vuebackend.bean.LoginInfo;
-import com.joe.vuebackend.bean.PasswordInfo;
 import com.joe.vuebackend.bean.RegisterInfo;
 import com.joe.vuebackend.constant.IdentityType;
 import com.joe.vuebackend.domain.*;
 import com.joe.vuebackend.repository.*;
+import com.joe.vuebackend.service.StudentService;
+import com.joe.vuebackend.service.TeacherService;
 import com.joe.vuebackend.service.UserService;
 import com.joe.vuebackend.utils.JwtUtil;
 import com.joe.vuebackend.utils.UserHelper;
@@ -41,6 +42,12 @@ public class UserServiceImpl implements UserService {
 
     @Setter(onMethod_ = @Autowired)
     private IdentityRepository identityRepository;
+
+    @Setter(onMethod_ = @Autowired)
+    private StudentService studentService;
+
+    @Setter(onMethod_ = @Autowired)
+    private TeacherService teacherService;
 
     @Override
     public HttpResult<UserInfo> login(LoginInfo info) {
@@ -170,7 +177,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public HttpResult<String> updatePassword(String id, PasswordInfo pswInfo) {
+    public HttpResult<String> updatePassword(String id, UserInfo pswInfo) {
         Optional<User> optional = userRepository.findById(id);
         if (optional.isPresent()) {
             User user = optional.get();
@@ -185,5 +192,29 @@ public class UserServiceImpl implements UserService {
             }
         }
         return HttpResult.fail("密碼修改失敗，請確定原密碼是否正確");
+    }
+
+    @Override
+    public HttpResult<String> updateInfo(String id, UserInfo userInfo) {
+        Optional<User> optional = userRepository.findById(id);
+        if (optional.isPresent()) {
+            User user = optional.get();
+            if (user instanceof Student student) {
+                return studentService.updateInfo(student, userInfo);
+            } else if (user instanceof Teacher teacher) {
+                return teacherService.updateInfo(teacher, userInfo);
+            } else {
+                User newInfo = UserInfo.ofUser(userInfo);
+                user.setName(newInfo.getName());
+                user.setGender(newInfo.getGender());
+                user.setBirth(newInfo.getBirth());
+                user.setMail(newInfo.getMail());
+                user.setPhone(newInfo.getPhone());
+                user.setAddress(newInfo.getAddress());
+                userRepository.save(user);
+                return HttpResult.success("修改成功");
+            }
+        }
+        return HttpResult.fail("修改失敗");
     }
 }

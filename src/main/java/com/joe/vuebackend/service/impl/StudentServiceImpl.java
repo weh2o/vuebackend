@@ -8,6 +8,7 @@ import com.joe.vuebackend.repository.condition.StudentCondition;
 import com.joe.vuebackend.repository.spec.StudentSpec;
 import com.joe.vuebackend.service.StudentService;
 import com.joe.vuebackend.vo.StudentVo;
+import com.joe.vuebackend.vo.UserInfo;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,6 +121,19 @@ public class StudentServiceImpl implements StudentService {
             target = stuRepository.save(dbStu);
         }
         return Optional.ofNullable(target);
+    }
+
+    public HttpResult<String> updateInfo(Student stu, UserInfo userInfo){
+        Student newInfo = StudentVo.ofStudent(userInfo);
+        stu.setName(newInfo.getName());
+        stu.setGender(newInfo.getGender());
+        stu.setNo(newInfo.getNo());
+        stu.setBirth(newInfo.getBirth());
+        stu.setMail(newInfo.getMail());
+        stu.setPhone(newInfo.getPhone());
+        stu.setAddress(newInfo.getAddress());
+        stuRepository.save(stu);
+        return HttpResult.success("修改成功");
     }
 
 }

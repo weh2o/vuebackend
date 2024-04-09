@@ -40,5 +40,13 @@ public interface UserService {
      * @param pswInfo 使用者密碼資料
      * @return
      */
-    HttpResult<String> updatePassword(String id, PasswordInfo pswInfo);
+    HttpResult<String> updatePassword(String id, UserInfo pswInfo);
+
+    /**
+     * 修改使用者基本資料
+     * @param id 使用者識別碼
+     * @param userInfo 新的使用者基本資料
+     * @return
+     */
+    HttpResult<String> updateInfo(String id, UserInfo userInfo);
 }

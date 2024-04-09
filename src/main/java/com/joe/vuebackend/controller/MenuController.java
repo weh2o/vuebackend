@@ -28,6 +28,6 @@ public class MenuController {
                     .sorted(Comparator.comparing(MenuVo::getSort)).toList();
             return HttpResult.success(vos);
         }
-        return HttpResult.fail();
+        return HttpResult.fail("取得清單失敗");
     }
 }

@@ -117,6 +117,15 @@ class InitDateTest {
                         RoleType.STUDENT.getText()
                 )
         );
+
+        MenuHelper.build(
+                "公告管理",
+                "/announcement",
+                "Tickets",
+                3,
+                List.of(RoleType.ADMIN.getText()
+                )
+        );
     }
 
     /**
@@ -127,14 +136,15 @@ class InitDateTest {
     @Order(4)
     void initAdmin() {
         User user = new User();
-        user.setAccount("admin");
+        // 基本資料
         user.setName("超級管理員");
         user.setGender(Gender.BOY);
         user.setBirth(LocalDate.of(2000, 1, 1));
         user.setMail("admin@gmail.com");
         user.setPhone("0988123456");
         user.setAddress("無處不在");
-        user.setBirth(LocalDate.of(2024, 4, 1));
+        // 帳密
+        user.setAccount("admin");
         String password = DigestUtils.md5DigestAsHex("1111".getBytes(StandardCharsets.UTF_8));
         user.setPassword(password);
 
@@ -222,8 +232,9 @@ class InitDateTest {
 
     @Test
     void initTeacherNo() {
+        // 此為測試用教師證，永不設成false
         TeacherNo tNo = new TeacherNo();
-        tNo.setNo("0000");
+        tNo.setNo("test0000");
         tNo.setAvailable(Boolean.TRUE);
         teacherNoRepository.save(tNo);
 
@@ -238,15 +249,43 @@ class InitDateTest {
     @Test
     @Commit
     void initTeacher(){
-        Teacher teacher = new Teacher();
-        teacher.setAccount("teacher1");
-        teacher.setPassword("1111");
-        Optional<TeacherNo> no = teacherNoRepository.findByNo("0000");
-        Teacher dbT = teacherRepository.save(teacher);
+
+        Optional<TeacherNo> no = teacherNoRepository.findByNo("test0000");
         if (no.isPresent()){
+            Teacher teacher = new Teacher();
+            teacher.setName("超級老師");
+            teacher.setAccount("teacher");
+            teacher.setGender(Gender.BOY);
+            teacher.setMail("teacher@gmail.com");
+            teacher.setPhone("0988123456");
+            teacher.setAddress("睡在學校");
+            teacher.setBirth(LocalDate.of(1980, 1, 1));
+            String password = DigestUtils.md5DigestAsHex("1111".getBytes(StandardCharsets.UTF_8));
+            teacher.setPassword(password);
+
+
+            Teacher dbT = teacherRepository.save(teacher);
+
+            // 教師證
             dbT.setNo(no.get());
+
+            // 權限
+            List<Role> roleList = RoleHelper.getRoleList(Arrays.asList(
+                    RoleType.TEACHER.name()
+            ));
+            dbT.setRoles(roleList);
+
+            // 身分
+            Optional<Identity> optional = identityRepository.findByName(IdentityType.TEACHER.getText());
+            if (optional.isPresent()) {
+                Identity identity = optional.get();
+                List<User> userList = identity.getUserList();
+                dbT.setIdentity(identity);
+                userList.add(dbT);
+                identity.setUserList(userList);
+                identityRepository.save(identity);
+            }
         }
-        teacherRepository.save(dbT);
     }
 }
 

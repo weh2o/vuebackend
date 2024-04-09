@@ -5,6 +5,7 @@ import com.joe.vuebackend.constant.IdentityType;
 import com.joe.vuebackend.constant.RoleType;
 import com.joe.vuebackend.domain.*;
 import com.joe.vuebackend.repository.*;
+import com.joe.vuebackend.utils.DateUtil;
 import com.joe.vuebackend.utils.MenuHelper;
 import com.joe.vuebackend.utils.RoleHelper;
 import lombok.Setter;
@@ -85,6 +86,9 @@ class InitDateTest {
         roleRepository.saveAll(roleList);
     }
 
+    /**
+     * 初始化清單
+     */
     @Test
     @Commit
     @Order(3)
@@ -170,7 +174,7 @@ class InitDateTest {
     }
 
     /**
-     * 初始化學生
+     * 初始化使用者 - 學生
      */
     @Test
     @Commit
@@ -183,7 +187,7 @@ class InitDateTest {
         stu.setMail("stu@gmail.com");
         stu.setPhone("0988123456");
         stu.setAddress("睡在學校");
-        stu.setBirth(LocalDate.of(2024, 4, 1));
+        stu.setBirth(LocalDate.of(2020, 4, 1));
         String password = DigestUtils.md5DigestAsHex("1111".getBytes(StandardCharsets.UTF_8));
         stu.setPassword(password);
 
@@ -212,24 +216,57 @@ class InitDateTest {
      */
     @Test
     void initManyStudent() {
-        for (int i = 0; i < 50; i++) {
+
+        Optional<Identity> optional = identityRepository.findByName(IdentityType.STUDENT.getText());
+        Identity identity = optional.get();
+        List<User> userList = identity.getUserList();
+
+        List<Role> roleList = RoleHelper.getRoleList(Arrays.asList(
+                RoleType.STUDENT.name()
+        ));
+
+        for (int i = 1; i <= 50; i++) {
             Student target = new Student();
+            // 基本資料
             target.setName("機器人" + i);
             target.setAge(i);
             target.setNo(10000 + i + "");
-            if (i % 2 == 0) {
+            if (i % 3 == 0) {
                 target.setGender(Gender.BOY);
-            } else {
+            } else if (i % 4 == 0) {
                 target.setGender(Gender.GIRL);
+            } else {
+                target.setGender(Gender.UNKNOWN);
             }
 
-            target.setBirth(LocalDate.now());
-            target.setPhone("098710000" + i);
+            LocalDate birth = DateUtil.getRangeLocalDate(
+                    LocalDate.of(1994, 1, 1),
+                    LocalDate.of(2008, 1, 1)
+            );
+            target.setBirth(birth);
+            if (i >= 10) {
+                target.setPhone("09871000" + i);
+            } else {
+                target.setPhone("098710000" + i);
+            }
             target.setMail(i + "newJJ@gmail.com");
-            stuRepository.save(target);
+
+            Student dbStu = stuRepository.save(target);
+
+            // 身分
+            dbStu.setIdentity(identity);
+            userList.add(dbStu);
+            identity.setUserList(userList);
+
+            // 權限
+            dbStu.setRoles(roleList);
+            identityRepository.save(identity);
         }
     }
 
+    /**
+     * 初始化教師證
+     */
     @Test
     void initTeacherNo() {
         // 此為測試用教師證，永不設成false
@@ -246,12 +283,15 @@ class InitDateTest {
         }
     }
 
+    /**
+     * 初始化使用者 - 老師
+     */
     @Test
     @Commit
-    void initTeacher(){
+    void initTeacher() {
 
         Optional<TeacherNo> no = teacherNoRepository.findByNo("test0000");
-        if (no.isPresent()){
+        if (no.isPresent()) {
             Teacher teacher = new Teacher();
             teacher.setName("超級老師");
             teacher.setAccount("teacher");

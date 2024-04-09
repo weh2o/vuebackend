@@ -1,0 +1,44 @@
+package com.joe.vuebackend.service.impl;
+
+import com.joe.vuebackend.bean.HttpResult;
+import com.joe.vuebackend.bean.PageResult;
+import com.joe.vuebackend.domain.Course;
+import com.joe.vuebackend.repository.CourseRepository;
+import com.joe.vuebackend.repository.condition.CourseCondition;
+import com.joe.vuebackend.repository.spec.CourseSpec;
+import com.joe.vuebackend.service.CourseService;
+import com.joe.vuebackend.vo.CourseVo;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class CourseServiceImpl implements CourseService {
+
+    @Setter(onMethod_ = @Autowired)
+    private CourseRepository courseRepository;
+
+    @Override
+    public HttpResult<PageResult<CourseVo>> findAllPage(CourseCondition condition) {
+        PageResult<CourseVo> target = new PageResult<>();
+        Page<Course> resultPage = courseRepository.findAll(
+                CourseSpec.initSpec(condition),
+                PageRequest.of(
+                        condition.getPage(),
+                        condition.getPageSize()
+                )
+        );
+        target.setTotal(resultPage.getTotalElements());
+        List<CourseVo> vos = resultPage.getContent()
+                .stream().map(CourseVo::ofVo)
+                .collect(Collectors.toCollection(LinkedList::new));
+        target.setData(vos);
+        return null;
+    }
+}

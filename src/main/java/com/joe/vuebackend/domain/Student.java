@@ -1,9 +1,9 @@
 package com.joe.vuebackend.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 @Entity
@@ -15,4 +15,10 @@ public class Student extends User{
      */
     @Column(name = "no", unique = true)
     private String no;
+
+    /**
+     * 課程
+     */
+    @ManyToMany(mappedBy = "students", cascade = CascadeType.ALL)
+    private List<Course> courseList;
 }

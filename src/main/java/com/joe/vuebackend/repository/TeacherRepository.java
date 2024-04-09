@@ -4,6 +4,7 @@ import com.joe.vuebackend.domain.Teacher;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface TeacherRepository
@@ -12,4 +13,6 @@ public interface TeacherRepository
     Optional<Teacher> findByNo_No(String no);
 
     Optional<Teacher> findByAccount(String account);
+
+    List<Teacher> findByName(String name);
 }

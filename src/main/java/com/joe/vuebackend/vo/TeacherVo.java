@@ -11,7 +11,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -40,11 +39,6 @@ public class TeacherVo {
             target.setName(source.getName());
         }
 
-        // 年紀
-        if (Objects.nonNull(source.getAge())) {
-            target.setAge(source.getAge());
-        }
-
         // 性別
         if (StringUtils.isNotEmpty(source.getSex())) {
             for (Gender gender : Gender.values()) {
@@ -60,7 +54,7 @@ public class TeacherVo {
 //
 //        }
 
-        // 生日
+        // 生日、年紀
         if (StringUtils.isNotEmpty(source.getBirth())) {
             String sourceBirth = source.getBirth();
             LocalDate stuBirth;
@@ -71,6 +65,8 @@ public class TeacherVo {
                 stuBirth = LocalDate.parse(sourceBirth);
             }
             target.setBirth(stuBirth);
+            // 年紀
+            target.setAge(target.getAge());
         }
 
         // 電話

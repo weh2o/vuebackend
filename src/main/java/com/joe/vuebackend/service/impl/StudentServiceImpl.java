@@ -17,8 +17,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -62,12 +64,14 @@ public class StudentServiceImpl implements StudentService {
         Page<Student> resultPage = stuRepository.findAll(
                 StudentSpec.initSpec(condition),
                 PageRequest.of(
-                        condition.getPage() - 1,
+                        condition.getPage(),
                         condition.getPageSize()
                 )
         );
         result.setTotal(resultPage.getTotalElements());
-        List<StudentVo> vos = resultPage.getContent().stream().map(StudentVo::ofVo).toList();
+        List<StudentVo> vos = resultPage.getContent()
+                .stream().map(StudentVo::ofVo)
+                .collect(Collectors.toCollection(LinkedList::new));
         result.setData(vos);
         return result;
     }

@@ -96,11 +96,6 @@ public class StudentVo {
             target.setName(source.getName());
         }
 
-        // 年紀
-        if (StringUtils.isNotEmpty(source.getAge())) {
-            target.setAge(Integer.valueOf(source.getAge()));
-        }
-
         // 性別
         if (StringUtils.isNotEmpty(source.getSex())) {
             for (Gender gender : Gender.values()) {
@@ -116,7 +111,7 @@ public class StudentVo {
             target.setNo(source.getNo());
         }
 
-        // 生日
+        // 生日、年紀
         if (StringUtils.isNotEmpty(source.getBirth())) {
             String sourceBirth = source.getBirth();
             LocalDate stuBirth;
@@ -127,6 +122,8 @@ public class StudentVo {
                 stuBirth = LocalDate.parse(sourceBirth);
             }
             target.setBirth(stuBirth);
+            // 年紀
+            target.setAge(target.getAge());
         }
 
         // 電話

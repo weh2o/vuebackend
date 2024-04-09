@@ -21,6 +21,7 @@ import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -229,7 +230,6 @@ class InitDateTest {
             Student target = new Student();
             // 基本資料
             target.setName("機器人" + i);
-            target.setAge(i);
             target.setNo(10000 + i + "");
             if (i % 3 == 0) {
                 target.setGender(Gender.BOY);
@@ -239,11 +239,18 @@ class InitDateTest {
                 target.setGender(Gender.UNKNOWN);
             }
 
+            // 生日
             LocalDate birth = DateUtil.getRangeLocalDate(
                     LocalDate.of(1994, 1, 1),
                     LocalDate.of(2008, 1, 1)
             );
             target.setBirth(birth);
+
+            // 年紀
+            LocalDate now = LocalDate.now();
+            Period period = Period.between(birth, now);
+            target.setAge(period.getYears());
+
             if (i >= 10) {
                 target.setPhone("09871000" + i);
             } else {

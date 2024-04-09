@@ -188,11 +188,6 @@ public class UserInfo {
             target.setName(source.getName());
         }
 
-        // 年紀
-        if (Objects.nonNull(source.getAge())) {
-            target.setAge(source.getAge());
-        }
-
         // 性別
         if (StringUtils.isNotEmpty(source.getSex())) {
             for (Gender gender : Gender.values()) {
@@ -203,7 +198,7 @@ public class UserInfo {
             }
         }
 
-        // 生日
+        // 生日、年紀
         if (StringUtils.isNotEmpty(source.getBirth())) {
             String sourceBirth = source.getBirth();
             LocalDate stuBirth;
@@ -214,6 +209,8 @@ public class UserInfo {
                 stuBirth = LocalDate.parse(sourceBirth);
             }
             target.setBirth(stuBirth);
+            // 年紀
+            target.setAge(target.getAge());
         }
 
         // 電話

@@ -23,4 +23,11 @@ public class BaseCondition {
      * 排序規則
      */
     private String order;
+
+    public Integer getPage() {
+        if (page != 0){
+            return page - 1;
+        }
+        return page;
+    }
 }

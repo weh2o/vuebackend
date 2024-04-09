@@ -36,6 +36,11 @@ public class StudentValidation implements Validator {
         if (StringUtils.isNotEmpty(no)) {
             Optional<Student> optional = stuRepository.findByNo(no);
             if (optional.isPresent()) {
+                Student dbStu = optional.get();
+                // 如果學生證是屬於本人，則放行
+                if (dbStu.getNo().equals(main.getNo())){
+                    return;
+                }
                 errors.rejectValue("no", "duplicate-no", "學生證重複");
             }
         }

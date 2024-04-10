@@ -150,37 +150,41 @@ class InitDateTest {
     @Commit
     @Order(4)
     void initAdmin() {
-        User user = new User();
-        // 基本資料
-        user.setName("超級管理員");
-        user.setGender(Gender.BOY);
-        user.setBirth(LocalDate.of(2000, 1, 1));
-        user.setMail("admin@gmail.com");
-        user.setPhone("0988123456");
-        user.setAddress("無處不在");
-        // 帳密
-        user.setAccount("admin");
-        String password = DigestUtils.md5DigestAsHex("1111".getBytes(StandardCharsets.UTF_8));
-        user.setPassword(password);
+        boolean exists = userRepository.existsByName("超級管理員");
+        if (!exists){
+            User user = new User();
 
-        // 角色權限
-        List<Role> roleList = RoleHelper.getRoleList(Arrays.asList(
-                RoleType.ADMIN.name(),
-                RoleType.STUDENT.name()
-        ));
-        user.setRoles(roleList);
+            // 基本資料
+            user.setName("超級管理員");
+            user.setGender(Gender.BOY);
+            user.setBirth(LocalDate.of(2000, 1, 1));
+            user.setMail("admin@gmail.com");
+            user.setPhone("0988123456");
+            user.setAddress("無處不在");
+            // 帳密
+            user.setAccount("admin");
+            String password = DigestUtils.md5DigestAsHex("1111".getBytes(StandardCharsets.UTF_8));
+            user.setPassword(password);
 
-        User dbUser = userRepository.save(user);
+            // 角色權限
+            List<Role> roleList = RoleHelper.getRoleList(Arrays.asList(
+                    RoleType.ADMIN.name(),
+                    RoleType.STUDENT.name()
+            ));
+            user.setRoles(roleList);
 
-        // 身分
-        Optional<Identity> optional = identityRepository.findByName(IdentityType.ADMIN.getText());
-        if (optional.isPresent()) {
-            Identity identity = optional.get();
-            List<User> userList = identity.getUserList();
-            dbUser.setIdentity(identity);
-            userList.add(dbUser);
-            identity.setUserList(userList);
-            identityRepository.save(identity);
+            User dbUser = userRepository.save(user);
+
+            // 身分
+            Optional<Identity> optional = identityRepository.findByName(IdentityType.ADMIN.getText());
+            if (optional.isPresent()) {
+                Identity identity = optional.get();
+                List<User> userList = identity.getUserList();
+                dbUser.setIdentity(identity);
+                userList.add(dbUser);
+                identity.setUserList(userList);
+                identityRepository.save(identity);
+            }
         }
     }
 

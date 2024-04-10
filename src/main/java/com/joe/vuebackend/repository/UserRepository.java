@@ -12,4 +12,6 @@ public interface UserRepository
     Optional<User> findByName(String name);
 
     Optional<User> findByAccount(String account);
+
+    boolean existsByName(String name);
 }

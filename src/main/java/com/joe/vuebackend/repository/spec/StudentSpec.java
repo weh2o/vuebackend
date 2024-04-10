@@ -53,6 +53,7 @@ public class StudentSpec implements Specification<Student> {
             if ("sex".equals(prop)) {
                 prop = Student_.GENDER;
             }
+            // 其餘排序
             if ("asc".equals(order)) {
                 orders.add(builder.asc(root.get(prop)));
             } else {

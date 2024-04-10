@@ -18,6 +18,8 @@ public enum RoleType {
 
     STUDENT("3", "STUDENT", "學生"),
 
+    DIRECTOR("4", "DIRECTOR", "主任"),
+
     VISITOR("99", "VISITOR", "遊客");
 
     @NonNull

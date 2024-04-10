@@ -60,13 +60,18 @@ class InitDateTest {
     void initIdentity() {
         ArrayList<Identity> list = new ArrayList<>();
         for (IdentityType identityType : IdentityType.values()) {
-            Identity target = new Identity();
-            target.setCode(identityType.getCode());
-            target.setName(identityType.getText());
-            target.setNameZh(identityType.getTextZh());
-            list.add(target);
+            boolean exists = identityRepository.existsByName(identityType.getText());
+            if (!exists){
+                Identity target = new Identity();
+                target.setCode(identityType.getCode());
+                target.setName(identityType.getText());
+                target.setNameZh(identityType.getTextZh());
+                list.add(target);
+            }
         }
-        identityRepository.saveAll(list);
+        if (list.size() != 0){
+            identityRepository.saveAll(list);
+        }
     }
 
 
@@ -79,12 +84,17 @@ class InitDateTest {
     void initRole() {
         List<Role> roleList = new ArrayList<>();
         for (RoleType roleType : RoleType.values()) {
-            Role role = new Role();
-            role.setName(roleType.getText());
-            role.setNameZh(roleType.getTextZh());
-            roleList.add(role);
+            boolean exists = roleRepository.existsByName(roleType.getText());
+            if (!exists){
+                Role role = new Role();
+                role.setName(roleType.getText());
+                role.setNameZh(roleType.getTextZh());
+                roleList.add(role);
+            }
         }
-        roleRepository.saveAll(roleList);
+        if (roleList.size() != 0){
+            roleRepository.saveAll(roleList);
+        }
     }
 
     /**

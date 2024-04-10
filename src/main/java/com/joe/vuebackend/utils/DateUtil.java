@@ -3,6 +3,7 @@ package com.joe.vuebackend.utils;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Random;
 
@@ -26,4 +27,14 @@ public class DateUtil {
         return startDate.plusDays(randomDays);
     }
 
+    /**
+     * 格式化日期 yyyy-MM-dd
+     *
+     * @param localDate
+     * @return
+     */
+    public static String formatToYYYYMMDD(LocalDate localDate) {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return dateTimeFormatter.format(localDate);
+    }
 }

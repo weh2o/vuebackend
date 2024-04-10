@@ -1,5 +1,6 @@
 package com.joe.vuebackend;
 
+import com.joe.vuebackend.bean.InitMenuBean;
 import com.joe.vuebackend.constant.Gender;
 import com.joe.vuebackend.constant.IdentityType;
 import com.joe.vuebackend.constant.RoleType;
@@ -104,43 +105,8 @@ class InitDateTest {
     @Commit
     @Order(3)
     void initMenu() {
-        MenuHelper.build(
-                "首頁",
-                "/home",
-                "House",
-                0,
-                RoleType.getAllText()
-        );
-
-        MenuHelper.build(
-                "學生管理",
-                "/studentManagement",
-                "User",
-                1,
-                List.of(RoleType.ADMIN.getText(),
-                        RoleType.TEACHER.getText()
-                )
-        );
-
-        MenuHelper.build(
-                "課程管理",
-                "/course",
-                "Memo",
-                2,
-                List.of(RoleType.ADMIN.getText(),
-                        RoleType.TEACHER.getText(),
-                        RoleType.STUDENT.getText()
-                )
-        );
-
-        MenuHelper.build(
-                "公告管理",
-                "/announcement",
-                "Tickets",
-                3,
-                List.of(RoleType.ADMIN.getText()
-                )
-        );
+        List<InitMenuBean> list = MenuHelper.getAllInitMenuBean();
+        MenuHelper.build(list);
     }
 
     /**

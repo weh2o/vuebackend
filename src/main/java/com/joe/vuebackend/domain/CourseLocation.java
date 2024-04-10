@@ -5,8 +5,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
+import org.apache.commons.collections4.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 上課地點
@@ -41,4 +44,13 @@ public class CourseLocation extends BaseEntity{
      */
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL)
     private List<Course> courseList;
+
+    public void addCourseList(Course course){
+        if (Objects.isNull(courseList)){
+            courseList = new ArrayList<>();
+        }
+        if (Objects.nonNull(course)){
+            courseList.add(course);
+        }
+    }
 }

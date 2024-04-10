@@ -1,12 +1,11 @@
 package com.joe.vuebackend.repository.spec;
 
 import com.joe.vuebackend.domain.Course;
-import com.joe.vuebackend.domain.Student;
-import com.joe.vuebackend.domain.Student_;
+import com.joe.vuebackend.domain.Course_;
+import com.joe.vuebackend.domain.Teacher;
+import com.joe.vuebackend.domain.Teacher_;
 import com.joe.vuebackend.repository.condition.CourseCondition;
-import com.joe.vuebackend.repository.condition.StudentCondition;
 import jakarta.persistence.criteria.*;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -30,33 +29,36 @@ public class CourseSpec implements Specification<Course> {
                                  CriteriaQuery<?> query,
                                  CriteriaBuilder builder) {
 
+        // Join
+        Join<Course, Teacher> teacherJoin = root.join(Course_.teacher, JoinType.LEFT);
+
         // 條件
         List<Predicate> predicates = new ArrayList<>();
-
+        if (StringUtils.isNotEmpty(condition.getCourseNameOrTeacher())) {
+            // 課程名稱 或 老師名稱 模糊查詢，符合其一即可
+            predicates.add(
+                    builder.or(
+                            builder.like(root.get(Course_.NAME), "%" + condition.getCourseNameOrTeacher() + "%"),
+                            builder.like(teacherJoin.get(Teacher_.NAME), "%" + condition.getCourseNameOrTeacher() + "%")
+                    )
+            );
+        }
 
         Predicate predicate = builder.and(predicates.toArray(new Predicate[]{}));
 
         // 排序
         List<Order> orders = new ArrayList<>();
-//        if (StringUtils.isNotEmpty(condition.getProp()) &&
-//                StringUtils.isNotEmpty(condition.getOrder())
-//        ) {
-//            String order = condition.getOrder().substring(0, 3);
-//            String prop = condition.getProp();
-//            // 性別特別處理
-//            if ("sex".equals(prop)) {
-//                prop = Student_.GENDER;
-//            }
-//            if ("asc".equals(order)) {
-//                orders.add(builder.asc(root.get(prop)));
-//            } else {
-//                orders.add(builder.desc(root.get(prop)));
-//            }
-//        }
+        if (StringUtils.isNotEmpty(condition.getProp()) &&
+                StringUtils.isNotEmpty(condition.getOrder())
+        ) {
+            String order = condition.getOrder().substring(0, 3);
+            String prop = condition.getProp();
 
-        // 默認排序: AGE
-        if (ObjectUtils.isEmpty(orders)) {
-            orders.add(builder.asc(root.get(Student_.AGE)));
+            if ("asc".equals(order)) {
+                orders.add(builder.asc(root.get(prop)));
+            } else {
+                orders.add(builder.desc(root.get(prop)));
+            }
         }
 
         return query.where(predicate).orderBy(orders).getRestriction();

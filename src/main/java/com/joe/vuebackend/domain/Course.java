@@ -57,7 +57,7 @@ public class Course extends BaseEntity{
     /**
      * 已參加學生數量
      */
-    private Integer studentCount;
+    private Integer count;
 
     /**
      * 可參加最大學生人數

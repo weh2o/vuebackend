@@ -10,7 +10,7 @@ public enum CourseLocationType {
     /*
 
      */
-
+    OTHER("0", "OTHER", "其他"),
     LIBRARY("1","LIBRARY", "圖書館"),
     PLAYGROUND("2", "PLAYGROUND", "操場"),
     GYMNASIUM("3","GYMNASIUM", "體育館"),

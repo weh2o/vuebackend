@@ -28,6 +28,14 @@ public class StudentVo {
     private String id;
     private String name;
     private String age;
+
+    /**
+     * 性別
+     * <br/>
+     * 使用code屬性
+     * @see Gender
+     *
+     */
     private String sex;
     private String no;
     private String phone;

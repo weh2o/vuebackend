@@ -2,8 +2,10 @@ package com.joe.vuebackend.repository.condition;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class BaseCondition {
+public class BaseCondition implements Serializable {
     /**
      * 當前頁數
      */

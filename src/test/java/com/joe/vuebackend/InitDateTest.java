@@ -18,6 +18,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Commit;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -31,6 +32,7 @@ import java.util.Optional;
 @SpringBootTest
 @Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Transactional
 class InitDateTest {
 
     @Setter(onMethod_ = @Autowired)
@@ -116,14 +118,14 @@ class InitDateTest {
     @Commit
     @Order(4)
     void initAdmin() {
-        boolean exists = userRepository.existsByName("超級管理員");
+        boolean exists = userRepository.existsByAccount("admin");
         if (!exists){
             User user = new User();
-
             // 基本資料
             user.setName("超級管理員");
             user.setGender(Gender.BOY);
             user.setBirth(LocalDate.of(2000, 1, 1));
+            user.setAge(user.getAge());
             user.setMail("admin@gmail.com");
             user.setPhone("0988123456");
             user.setAddress("無處不在");
@@ -151,7 +153,10 @@ class InitDateTest {
                 identity.setUserList(userList);
                 identityRepository.save(identity);
             }
+            log.info("創建成功");
+            return;
         }
+        log.warn("創建失敗，帳號已存在");
     }
 
     /**
@@ -161,35 +166,38 @@ class InitDateTest {
     @Commit
     @Order(5)
     void initStudent() {
-        Student stu = new Student();
-        stu.setAccount("stu");
-        stu.setName("超級學生");
-        stu.setGender(Gender.BOY);
-        stu.setMail("stu@gmail.com");
-        stu.setPhone("0988123456");
-        stu.setAddress("睡在學校");
-        stu.setBirth(LocalDate.of(2020, 4, 1));
-        String password = DigestUtils.md5DigestAsHex("1111".getBytes(StandardCharsets.UTF_8));
-        stu.setPassword(password);
+        boolean exists = userRepository.existsByAccount("stu");
+        if (!exists){
+            Student stu = new Student();
+            stu.setAccount("stu");
+            stu.setName("超級學生");
+            stu.setGender(Gender.BOY);
+            stu.setMail("stu@gmail.com");
+            stu.setPhone("0988123456");
+            stu.setAddress("睡在學校");
+            stu.setBirth(LocalDate.of(2020, 4, 1));
+            stu.setAge(stu.getAge());
+            String password = DigestUtils.md5DigestAsHex("1111".getBytes(StandardCharsets.UTF_8));
+            stu.setPassword(password);
 
-        // 權限
-        List<Role> roleList = RoleHelper.getRoleList(Arrays.asList(
-                RoleType.STUDENT.name()
-        ));
-        stu.setRoles(roleList);
-        Student dbStu = stuRepository.save(stu);
+            // 權限
+            List<Role> roleList = RoleHelper.getRoleList(Arrays.asList(
+                    RoleType.STUDENT.name()
+            ));
+            stu.setRoles(roleList);
+            Student dbStu = stuRepository.save(stu);
 
-        // 身分
-        Optional<Identity> optional = identityRepository.findByName(IdentityType.STUDENT.getText());
-        if (optional.isPresent()) {
-            Identity identity = optional.get();
-            List<User> userList = identity.getUserList();
-            dbStu.setIdentity(identity);
-            userList.add(dbStu);
-            identity.setUserList(userList);
-            identityRepository.save(identity);
+            // 身分
+            Optional<Identity> optional = identityRepository.findByName(IdentityType.STUDENT.getText());
+            if (optional.isPresent()) {
+                Identity identity = optional.get();
+                List<User> userList = identity.getUserList();
+                dbStu.setIdentity(identity);
+                userList.add(dbStu);
+                identity.setUserList(userList);
+                identityRepository.save(identity);
+            }
         }
-
     }
 
     /**
@@ -197,7 +205,6 @@ class InitDateTest {
      */
     @Test
     void initManyStudent() {
-
         Optional<Identity> optional = identityRepository.findByName(IdentityType.STUDENT.getText());
         Identity identity = optional.get();
         List<User> userList = identity.getUserList();
@@ -256,14 +263,9 @@ class InitDateTest {
      */
     @Test
     void initTeacherNo() {
-        // 此為測試用教師證，永不設成false
-        TeacherNo tNo = new TeacherNo();
-        tNo.setNo("test0000");
-        tNo.setAvailable(Boolean.TRUE);
-        teacherNoRepository.save(tNo);
-
-        for (int i = 0; i < 5; i++) {
+        for (int i = 1; i < 10; i++) {
             TeacherNo no = new TeacherNo();
+            // t100x
             no.setNo("t" + 100 + i);
             no.setAvailable(Boolean.TRUE);
             teacherNoRepository.save(no);
@@ -276,43 +278,59 @@ class InitDateTest {
     @Test
     @Commit
     void initTeacher() {
+        String result = "";
+        boolean exists = userRepository.existsByAccount("teacher");
 
-        Optional<TeacherNo> no = teacherNoRepository.findByNo("test0000");
-        if (no.isPresent()) {
-            Teacher teacher = new Teacher();
-            teacher.setName("超級老師");
-            teacher.setAccount("teacher");
-            teacher.setGender(Gender.BOY);
-            teacher.setMail("teacher@gmail.com");
-            teacher.setPhone("0988123456");
-            teacher.setAddress("睡在學校");
-            teacher.setBirth(LocalDate.of(1980, 1, 1));
-            String password = DigestUtils.md5DigestAsHex("1111".getBytes(StandardCharsets.UTF_8));
-            teacher.setPassword(password);
-
-
-            Teacher dbT = teacherRepository.save(teacher);
-
+        if (!exists){
             // 教師證
-            dbT.setNo(no.get());
+            Optional<TeacherNo> no = teacherNoRepository.findByNo("t1001");
+            if (no.isPresent()) {
+                TeacherNo teacherNo = no.get();
+                if (teacherNo.getAvailable()){
+                    Teacher teacher = new Teacher();
+                    teacher.setName("超級老師");
+                    teacher.setAccount("teacher");
+                    teacher.setGender(Gender.BOY);
+                    teacher.setMail("teacher@gmail.com");
+                    teacher.setPhone("0988123456");
+                    teacher.setAddress("睡在學校");
+                    teacher.setBirth(LocalDate.of(1994, 1, 1));
+                    teacher.setAge(teacher.getAge());
+                    String password = DigestUtils.md5DigestAsHex("1111".getBytes(StandardCharsets.UTF_8));
+                    teacher.setPassword(password);
 
-            // 權限
-            List<Role> roleList = RoleHelper.getRoleList(Arrays.asList(
-                    RoleType.TEACHER.name()
-            ));
-            dbT.setRoles(roleList);
+                    Teacher dbT = teacherRepository.save(teacher);
 
-            // 身分
-            Optional<Identity> optional = identityRepository.findByName(IdentityType.TEACHER.getText());
-            if (optional.isPresent()) {
-                Identity identity = optional.get();
-                List<User> userList = identity.getUserList();
-                dbT.setIdentity(identity);
-                userList.add(dbT);
-                identity.setUserList(userList);
-                identityRepository.save(identity);
+                    // 教師證
+                    dbT.setNo(teacherNo);
+                    teacherNo.setAvailable(false);
+
+                    // 權限
+                    List<Role> roleList = RoleHelper.getRoleList(Arrays.asList(
+                            RoleType.TEACHER.name()
+                    ));
+                    dbT.setRoles(roleList);
+
+                    // 身分
+                    Optional<Identity> optional = identityRepository.findByName(IdentityType.TEACHER.getText());
+                    if (optional.isPresent()) {
+                        Identity identity = optional.get();
+                        List<User> userList = identity.getUserList();
+                        dbT.setIdentity(identity);
+                        userList.add(dbT);
+                        identity.setUserList(userList);
+                        identityRepository.save(identity);
+                    }
+                    log.info("創建成功");
+                    return;
+                }
+                log.error("創建失敗，教師證已被使用");
+                return;
             }
+            log.error("創建失敗，教師證不存在");
+            return;
         }
+        log.error("創建失敗，該帳號已存在");
     }
 }
 

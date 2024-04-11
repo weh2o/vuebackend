@@ -17,4 +17,6 @@ public interface StudentRepository
     Optional<Student> findByNo(String no);
 
     Optional<Student> findByAccount(String account);
+
+    boolean existsByAccount(String account);
 }

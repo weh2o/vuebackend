@@ -53,9 +53,30 @@ public class CourseVo {
     private String courseDate;
 
     /**
+     * 課程開始日期
+     */
+    private String startDate;
+
+    /**
+     * 課程結束日期
+     */
+    private String endDate;
+
+
+    /**
      * 上課開始 ~ 結束時間
      */
     private String courseTime;
+
+    /**
+     * 上課開始時間
+     */
+    private String startTime;
+
+    /**
+     * 上課結束時間
+     */
+    private String endTime;
 
     /**
      * 報名截止日期
@@ -105,6 +126,8 @@ public class CourseVo {
             String end = DateUtil.formatToYYYYMMDD(endDate);
             String result = String.format("%s ~ %s", start, end);
             target.setCourseDate(result);
+            target.setStartDate(start);
+            target.setEndDate(end);
         }
 
         // 上課時間
@@ -113,6 +136,8 @@ public class CourseVo {
         if (Objects.nonNull(startTime) && Objects.nonNull(endTime)) {
             String result = String.format("%s ~ %s", startTime, endTime);
             target.setCourseTime(result);
+            target.setStartTime(DateUtil.formatToHHMM(startTime));
+            target.setEndTime(DateUtil.formatToHHMM(endTime));
         }
 
         // 截止日期

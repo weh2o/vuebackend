@@ -17,4 +17,6 @@ public interface CourseLocationRepository
      */
     Optional<CourseLocation> findByName(String name);
 
+    boolean existsByCode(String code);
+
 }

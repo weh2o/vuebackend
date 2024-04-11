@@ -53,6 +53,9 @@ class InitDateTest {
     @Setter(onMethod_ = @Autowired)
     private TeacherRepository teacherRepository;
 
+    @Setter(onMethod_ = @Autowired)
+    private CourseLocationRepository courseLocationRepository;
+
 
     /**
      * 初始化身分
@@ -64,7 +67,7 @@ class InitDateTest {
         ArrayList<Identity> list = new ArrayList<>();
         for (IdentityType identityType : IdentityType.values()) {
             boolean exists = identityRepository.existsByName(identityType.getText());
-            if (!exists){
+            if (!exists) {
                 Identity target = new Identity();
                 target.setCode(identityType.getCode());
                 target.setName(identityType.getText());
@@ -72,7 +75,7 @@ class InitDateTest {
                 list.add(target);
             }
         }
-        if (list.size() != 0){
+        if (list.size() != 0) {
             identityRepository.saveAll(list);
         }
     }
@@ -88,14 +91,14 @@ class InitDateTest {
         List<Role> roleList = new ArrayList<>();
         for (RoleType roleType : RoleType.values()) {
             boolean exists = roleRepository.existsByName(roleType.getText());
-            if (!exists){
+            if (!exists) {
                 Role role = new Role();
                 role.setName(roleType.getText());
                 role.setNameZh(roleType.getTextZh());
                 roleList.add(role);
             }
         }
-        if (roleList.size() != 0){
+        if (roleList.size() != 0) {
             roleRepository.saveAll(roleList);
         }
     }
@@ -119,7 +122,7 @@ class InitDateTest {
     @Order(4)
     void initAdmin() {
         boolean exists = userRepository.existsByAccount("admin");
-        if (!exists){
+        if (!exists) {
             User user = new User();
             // 基本資料
             user.setName("超級管理員");
@@ -167,7 +170,7 @@ class InitDateTest {
     @Order(5)
     void initStudent() {
         boolean exists = userRepository.existsByAccount("stu");
-        if (!exists){
+        if (!exists) {
             Student stu = new Student();
             stu.setAccount("stu");
             stu.setName("超級學生");
@@ -281,12 +284,12 @@ class InitDateTest {
         String result = "";
         boolean exists = userRepository.existsByAccount("teacher");
 
-        if (!exists){
+        if (!exists) {
             // 教師證
             Optional<TeacherNo> no = teacherNoRepository.findByNo("t1001");
             if (no.isPresent()) {
                 TeacherNo teacherNo = no.get();
-                if (teacherNo.getAvailable()){
+                if (teacherNo.getAvailable()) {
                     Teacher teacher = new Teacher();
                     teacher.setName("超級老師");
                     teacher.setAccount("teacher");
@@ -331,6 +334,11 @@ class InitDateTest {
             return;
         }
         log.error("創建失敗，該帳號已存在");
+    }
+
+    @Test
+    void initLocation() {
+        new CourseLocationTest().initAll();
     }
 }
 

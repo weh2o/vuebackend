@@ -57,43 +57,53 @@ public class Course extends BaseEntity{
     /**
      * 已參加學生數量
      */
+    @Column(name = "count")
     private Integer count;
 
     /**
      * 可參加最大學生人數
      */
+    @Column(name = "max_count")
     private Integer maxCount;
 
     /**
      * 課程開始日期
      */
+    @Column(name = "start_date")
     private LocalDate startDate;
 
     /**
      * 課程結束日期
      */
+    @Column(name = "end_date")
     private LocalDate endDate;
 
 
     /**
      * 上課開始時間
      */
+    @Column(name = "start_time")
     private LocalTime startTime;
 
     /**
      * 上課結束時間
      */
+    @Column(name = "end_time")
     private LocalTime endTime;
 
     /**
      * 報名截止日期
      */
+    @Column(name = "deadline")
     private LocalDate deadline;
 
     /**
      * 上課地點
      */
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE}
+    )
     @JoinColumn(
             name = "course_location_id",
             foreignKey = @ForeignKey(name = "fk_course_course_location")

@@ -31,8 +31,7 @@ public class TeacherNo extends BaseEntity {
     /**
      * 是否註冊
      *
-     * @return true 尚未註冊
-     * @return false 已經註冊
+     * @return true 尚未註冊, false 已經註冊
      */
     @Column(name = "available")
     private Boolean available;

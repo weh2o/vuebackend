@@ -2,7 +2,11 @@ package com.joe.vuebackend.service;
 
 import com.joe.vuebackend.bean.HttpResult;
 import com.joe.vuebackend.domain.Teacher;
+import com.joe.vuebackend.repository.condition.TeacherCondition;
+import com.joe.vuebackend.vo.TeacherVo;
 import com.joe.vuebackend.vo.UserInfo;
+
+import java.util.List;
 
 public interface TeacherService {
 
@@ -14,4 +18,7 @@ public interface TeacherService {
      * @return
      */
     HttpResult<String> updateInfo(Teacher teacher, UserInfo userInfo);
+
+    HttpResult<List<TeacherVo>> findAll(TeacherCondition condition);
+
 }

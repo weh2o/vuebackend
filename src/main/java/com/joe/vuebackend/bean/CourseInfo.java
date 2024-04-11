@@ -11,6 +11,11 @@ import java.time.LocalTime;
 public class CourseInfo {
 
     /**
+     * 識別碼
+     */
+    private String id;
+
+    /**
      * 課程名
      */
     private String name;
@@ -56,12 +61,29 @@ public class CourseInfo {
     private String otherLocation;
 
     /**
-     * 老師
+     * 老師名稱
      */
     private String teacher;
 
+    /**
+     * 老師識別碼
+     */
+    private String teacherId;
+
+    /**
+     * 轉換基本類型資料
+     * <br/>
+     * 無 location、teacher
+     * @param source
+     * @return
+     */
     public static Course ofCourse(CourseInfo source) {
         Course target = new Course();
+
+        // 識別碼
+        if (StringUtils.isNotEmpty(source.getId())) {
+            target.setId(source.getId());
+        }
 
         // 課程名
         if (StringUtils.isNotEmpty(source.getName())) {
@@ -97,12 +119,6 @@ public class CourseInfo {
         if (StringUtils.isNotEmpty(source.getEndTime())) {
             target.setEndTime(LocalTime.parse(source.getEndTime()));
         }
-
-        // 地點
-//        if (StringUtils.isNotEmpty(source.getLocation())) {
-//            CourseLocationHelper.infoSetCourse(target, source);
-//        }
-
 
         return target;
     }

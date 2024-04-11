@@ -12,6 +12,9 @@ import com.joe.vuebackend.utils.CourseHelper;
 import com.joe.vuebackend.vo.CourseVo;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,7 +37,6 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public PageResult<CourseVo> findAllPage(CourseCondition condition) {
         PageResult<CourseVo> target = new PageResult<>();
-
         Page<Course> resultPage = courseRepository.findAll(
                 CourseSpec.initSpec(condition),
                 PageRequest.of(
@@ -52,26 +55,52 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public HttpResult<String> save(CourseInfo info) {
-        try {
-            Course course = CourseInfo.ofCourse(info);
-            Course dbCourse = courseRepository.save(course);
-            CourseHelper.infoSetCourse(dbCourse, info);
-            CourseHelper.infoSetTeacher(dbCourse, info);
-            courseRepository.save(dbCourse);
-        } catch (Exception e) {
-            log.error(String.format("Course保存失敗: %s", e.getMessage()));
-            return HttpResult.success("添加失敗", e.getMessage());
+
+        if (StringUtils.isNotEmpty(info.getId())) {
+            return update(info);
+        } else {
+            try {
+                Course course = CourseInfo.ofCourse(info);
+                Course dbCourse = courseRepository.save(course);
+                CourseHelper.infoSetCourseLocation(dbCourse, info);
+                CourseHelper.infoSetTeacher(dbCourse, info);
+                courseRepository.save(dbCourse);
+            } catch (Exception e) {
+                log.error(String.format("Course保存失敗: %s", e));
+                return HttpResult.fail("新增失敗", e.getMessage());
+            }
+            return HttpResult.success("新增成功");
         }
-        return HttpResult.success("添加成功");
     }
 
     @Override
     public HttpResult<String> remove(String id) {
         courseRepository.deleteById(id);
         boolean exists = courseRepository.existsById(id);
-        if (exists){
+        if (exists) {
             return HttpResult.fail("刪除失敗");
         }
         return HttpResult.success("刪除成功");
+    }
+
+    @Override
+    public HttpResult<String> update(CourseInfo info) {
+        try {
+            Optional<Course> optional = courseRepository.findById(info.getId());
+            if (optional.isPresent()) {
+                Course dbCourse = optional.get();
+                Course newCourse = CourseInfo.ofCourse(info);
+                // 基本類型複製
+                BeanUtils.copyProperties(newCourse, dbCourse, "id", "location", "teacher");
+                // 引用類型設置
+                CourseHelper.infoSetTeacher(dbCourse, info);
+                CourseHelper.infoSetCourseLocation(dbCourse, info);
+                courseRepository.save(dbCourse);
+                return HttpResult.success("修改成功");
+            }
+        } catch (BeansException e) {
+            throw new RuntimeException(e);
+        }
+        return HttpResult.fail("修改失敗");
     }
 }

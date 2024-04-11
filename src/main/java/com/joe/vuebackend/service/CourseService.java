@@ -19,4 +19,6 @@ public interface CourseService {
     HttpResult<String> save(CourseInfo info);
 
     HttpResult<String> remove(String id);
+
+    HttpResult<String> update(CourseInfo info);
 }

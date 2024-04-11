@@ -64,4 +64,14 @@ public class CourseServiceImpl implements CourseService {
         }
         return HttpResult.success("添加成功");
     }
+
+    @Override
+    public HttpResult<String> remove(String id) {
+        courseRepository.deleteById(id);
+        boolean exists = courseRepository.existsById(id);
+        if (exists){
+            return HttpResult.fail("刪除失敗");
+        }
+        return HttpResult.success("刪除成功");
+    }
 }

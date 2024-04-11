@@ -29,4 +29,9 @@ public class CourseController {
         return courseService.save(info);
     }
 
+    @DeleteMapping("{id}")
+    public HttpResult<String> remove(@PathVariable String id){
+        return courseService.remove(id);
+    }
+
 }

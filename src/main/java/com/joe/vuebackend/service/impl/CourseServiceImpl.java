@@ -59,7 +59,7 @@ public class CourseServiceImpl implements CourseService {
             CourseHelper.infoSetTeacher(dbCourse, info);
             courseRepository.save(dbCourse);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(String.format("Course保存失敗: %s", e.getMessage()));
             return HttpResult.success("添加失敗", e.getMessage());
         }
         return HttpResult.success("添加成功");

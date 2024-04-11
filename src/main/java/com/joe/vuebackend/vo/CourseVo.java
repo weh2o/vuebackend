@@ -28,9 +28,14 @@ public class CourseVo {
     private String name;
 
     /**
-     * 老師
+     * 老師名稱
      */
     private String teacher;
+
+    /**
+     * 老師識別碼
+     */
+    private String teacherId;
 
     /**
      * 已報名學生數量
@@ -76,9 +81,10 @@ public class CourseVo {
             target.setName(source.getName());
         }
 
-        // 老師姓名
+        // 老師姓名、識別碼
         if (Objects.nonNull(source.getTeacher())) {
             target.setTeacher(source.getTeacher().getName());
+            target.setTeacherId(source.getTeacher().getId());
         }
 
         // 已報名學生數量

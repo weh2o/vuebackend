@@ -6,6 +6,7 @@ import com.joe.vuebackend.domain.Menu;
 import com.joe.vuebackend.domain.Role;
 import com.joe.vuebackend.repository.MenuRepository;
 import com.joe.vuebackend.service.RoleService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -14,11 +15,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * 清單小幫手
+ */
 @Component
+@Slf4j
 public class MenuHelper {
 
     /**
-     * 返回所有初始化清單
+     * 返回所有預設清單
      *
      * @return
      */
@@ -84,11 +89,12 @@ public class MenuHelper {
      * @param menuBeans
      */
     public static void build(List<InitMenuBean> menuBeans) {
-
+        CRUDLogHelper logHelper = CRUDLogHelper.build("批量構建清單 build()");
         MenuRepository repository = SpringUtils.getBean(MenuRepository.class);
         if (Objects.nonNull(repository) && CollectionUtils.isNotEmpty(menuBeans)) {
             for (InitMenuBean menu : menuBeans) {
-                boolean exists = repository.existsByLabel(menu.getLabel());
+                String label = menu.getLabel();
+                boolean exists = repository.existsByLabel(label);
                 if (!exists) {
                     build(menu.getLabel(),
                             menu.getPath(),
@@ -96,8 +102,9 @@ public class MenuHelper {
                             menu.getSort(),
                             menu.getRoleNames()
                     );
+                } else {
+                    logHelper.saveDuplicateFail(label);
                 }
-
             }
         }
     }
@@ -116,25 +123,36 @@ public class MenuHelper {
                              String icon,
                              Integer sort,
                              List<String> roleNames) {
+        CRUDLogHelper logHelper = CRUDLogHelper.build("批量構建清單 build()");
         if (StringUtils.isNotEmpty(label) && StringUtils.isNotEmpty(path)) {
-            Menu menu = new Menu();
-            menu.setLabel(label);
-            menu.setPath(path);
-            menu.setIcon(icon);
-            menu.setSort(sort);
-            MenuRepository menuRepository = SpringUtils.getBean(MenuRepository.class);
-            RoleService roleService = SpringUtils.getBean(RoleService.class);
-            if (Objects.nonNull(menuRepository) && Objects.nonNull(roleService)) {
-                Menu dbMenu = menuRepository.save(menu);
-                List<Role> roles = roleService.findByNames(roleNames);
-                if (CollectionUtils.isNotEmpty(roles)) {
-                    for (Role role : roles) {
-                        role.addMenus(dbMenu);
-                        dbMenu.addRoles(role);
+            try {
+                MenuRepository menuRepository = SpringUtils.getBean(MenuRepository.class);
+                RoleService roleService = SpringUtils.getBean(RoleService.class);
+                if (Objects.nonNull(menuRepository) && Objects.nonNull(roleService)) {
+
+                    Menu menu = new Menu();
+                    menu.setLabel(label);
+                    menu.setPath(path);
+                    menu.setIcon(icon);
+                    menu.setSort(sort);
+
+                    Menu dbMenu = menuRepository.save(menu);
+                    // 角色權限
+                    List<Role> roles = roleService.findByNames(roleNames);
+                    if (CollectionUtils.isNotEmpty(roles)) {
+                        for (Role role : roles) {
+                            role.addMenus(dbMenu);
+                            dbMenu.addRoles(role);
+                        }
                     }
+                    menuRepository.save(dbMenu);
+                    logHelper.saveSuccess(label);
                 }
-                menuRepository.save(dbMenu);
+            } catch (Exception e) {
+                logHelper.saveFail(label, e);
             }
+        } else {
+            log.error("新增失敗，請確認 清單名:{} 與 清單地址:{} 資料是否正確", label, path);
         }
     }
 }

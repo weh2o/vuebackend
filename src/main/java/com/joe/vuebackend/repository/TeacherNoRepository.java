@@ -14,4 +14,6 @@ public interface TeacherNoRepository
 
     Optional<TeacherNo> findByNoAndAvailableIsTrue(String no);
 
+    boolean existsByNo(String no);
+
 }

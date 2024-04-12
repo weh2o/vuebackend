@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * 身分類型
+ */
 @RequiredArgsConstructor
 public enum IdentityType {
     ADMIN("1", "ADMIN", "系統管理者"),

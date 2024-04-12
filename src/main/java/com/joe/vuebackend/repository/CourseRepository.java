@@ -7,4 +7,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 public interface CourseRepository
         extends JpaRepository<Course, String>, JpaSpecificationExecutor<Course> {
 
+    boolean existsByName(String name);
 }

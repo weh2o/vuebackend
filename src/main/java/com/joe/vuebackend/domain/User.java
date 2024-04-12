@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -118,13 +119,33 @@ public class User extends BaseEntity {
     )
     private Identity identity;
 
+    /**
+     * 課程
+     */
+    @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    private List<Course> courseList;
+
 
     public Integer getAge() {
-        if (Objects.nonNull(birth)){
+        if (Objects.nonNull(birth)) {
             LocalDate now = LocalDate.now();
             Period period = Period.between(birth, now);
             return period.getYears();
         }
         return null;
+    }
+
+    /**
+     * 添加課程
+     *
+     * @param source 課程
+     */
+    public void addCourse(Course source) {
+        if (Objects.isNull(courseList)) {
+            courseList = new ArrayList<>();
+        }
+        if (Objects.nonNull(source)) {
+            courseList.add(source);
+        }
     }
 }

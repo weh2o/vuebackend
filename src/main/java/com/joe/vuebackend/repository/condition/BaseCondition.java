@@ -26,6 +26,11 @@ public class BaseCondition implements Serializable {
      */
     private String order;
 
+    /**
+     * 使用者識別碼
+     */
+    private String userId;
+
     public Integer getPage() {
         if (page != 0){
             return page - 1;

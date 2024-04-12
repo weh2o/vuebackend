@@ -6,7 +6,9 @@ import lombok.ToString;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 課程
@@ -15,7 +17,7 @@ import java.util.List;
 @Table(name = "j_course")
 @Entity
 @ToString(exclude = {"location", "teacher", "students"})
-public class Course extends BaseEntity{
+public class Course extends BaseEntity {
 
     /**
      * 課程名稱
@@ -52,7 +54,7 @@ public class Course extends BaseEntity{
                     columnNames = {"course_id", "student_id"}
             )
     )
-    private List<Student> students;
+    private List<User> users;
 
     /**
      * 已參加學生數量
@@ -110,4 +112,17 @@ public class Course extends BaseEntity{
     )
     private CourseLocation location;
 
+    /**
+     * 添加學生
+     *
+     * @param source 學生
+     */
+    public void addUser(User source) {
+        if (Objects.isNull(users)) {
+            users = new ArrayList<>();
+        }
+        if (Objects.nonNull(source)) {
+            users.add(source);
+        }
+    }
 }

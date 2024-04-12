@@ -15,10 +15,4 @@ public class Student extends User{
      */
     @Column(name = "no", unique = true)
     private String no;
-
-    /**
-     * 課程
-     */
-    @ManyToMany(mappedBy = "students", cascade = CascadeType.ALL)
-    private List<Course> courseList;
 }

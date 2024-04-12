@@ -1,6 +1,7 @@
 package com.joe.vuebackend.vo;
 
 import com.joe.vuebackend.domain.Course;
+import com.joe.vuebackend.domain.User;
 import com.joe.vuebackend.utils.DateUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Objects;
 
 @Data
@@ -40,7 +42,7 @@ public class CourseVo {
     /**
      * 已報名學生數量
      */
-    private Integer count;
+    private Integer count = 0;
 
     /**
      * 可報名總人數
@@ -88,8 +90,25 @@ public class CourseVo {
      */
     private String location;
 
+    /**
+     * 是否報名
+     * <p>0 尚未報名</p>
+     * <p>1 已報名</p>
+     */
+    private String isSignUp = "0";
+
+    /**
+     * 是否為課程創建者
+     * <p>0 不是</p>
+     * <p>1 是</p>
+     */
+    private String isSelf = "0";
 
     public static CourseVo ofVo(Course source) {
+        return ofVo(source, null);
+    }
+
+    public static CourseVo ofVo(Course source, String userId) {
         CourseVo target = new CourseVo();
 
         // 識別碼
@@ -109,8 +128,8 @@ public class CourseVo {
         }
 
         // 已報名學生數量
-        if (CollectionUtils.isNotEmpty(source.getStudents())) {
-            target.setCount(source.getStudents().size());
+        if (CollectionUtils.isNotEmpty(source.getUsers())) {
+            target.setCount(source.getUsers().size());
         }
 
         // 可報名總人數
@@ -149,6 +168,28 @@ public class CourseVo {
         // 上課地點名稱
         if (Objects.nonNull(source.getLocation())) {
             target.setLocation(source.getLocation().getNameZh());
+        }
+
+        // 有傳入使用者識別碼的話
+        if (StringUtils.isNotEmpty(userId)) {
+
+            // 是否為課程創建者
+            if (Objects.nonNull(source.getTeacher())) {
+                if (source.getTeacher().getId().equals(userId)) {
+                    target.setIsSelf("1");
+                }
+            }
+
+            // 是否已報名
+            if (CollectionUtils.isNotEmpty(source.getUsers())) {
+                List<User> courseUsers = source.getUsers();
+                for (User courseUser : courseUsers) {
+                    if (courseUser.getId().equals(userId)) {
+                        target.setIsSignUp("1");
+                        break;
+                    }
+                }
+            }
         }
 
         return target;

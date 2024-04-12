@@ -21,4 +21,13 @@ public interface CourseService {
     HttpResult<String> remove(String id);
 
     HttpResult<String> update(CourseInfo info);
+
+    /**
+     * 報名
+     *
+     * @param courseId 課程識別碼
+     * @param userId   使用者識別碼
+     * @return
+     */
+    HttpResult<String> signUp(String courseId, String userId);
 }

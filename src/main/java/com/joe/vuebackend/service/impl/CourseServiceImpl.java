@@ -4,7 +4,9 @@ import com.joe.vuebackend.bean.CourseInfo;
 import com.joe.vuebackend.bean.HttpResult;
 import com.joe.vuebackend.bean.PageResult;
 import com.joe.vuebackend.domain.Course;
+import com.joe.vuebackend.domain.User;
 import com.joe.vuebackend.repository.CourseRepository;
+import com.joe.vuebackend.repository.UserRepository;
 import com.joe.vuebackend.repository.condition.CourseCondition;
 import com.joe.vuebackend.repository.spec.CourseSpec;
 import com.joe.vuebackend.service.CourseService;
@@ -24,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -33,6 +34,9 @@ public class CourseServiceImpl implements CourseService {
 
     @Setter(onMethod_ = @Autowired)
     private CourseRepository courseRepository;
+
+    @Setter(onMethod_ = @Autowired)
+    private UserRepository userRepository;
 
     @Override
     public PageResult<CourseVo> findAllPage(CourseCondition condition) {
@@ -46,9 +50,11 @@ public class CourseServiceImpl implements CourseService {
         );
 
         target.setTotal(resultPage.getTotalElements());
-        List<CourseVo> vos = resultPage.getContent()
-                .stream().map(CourseVo::ofVo)
-                .collect(Collectors.toCollection(LinkedList::new));
+        List<CourseVo> vos = new LinkedList<>();
+        for (Course course : resultPage.getContent()) {
+            CourseVo vo = CourseVo.ofVo(course, condition.getUserId());
+            vos.add(vo);
+        }
         target.setData(vos);
         return target;
     }
@@ -102,5 +108,30 @@ public class CourseServiceImpl implements CourseService {
             throw new RuntimeException(e);
         }
         return HttpResult.fail("修改失敗");
+    }
+
+    @Override
+    public HttpResult<String> signUp(String courseId, String userId) {
+        try {
+            Optional<Course> courseOptional = courseRepository.findById(courseId);
+            Optional<User> userOptional = userRepository.findById(userId);
+
+            if (courseOptional.isEmpty()) {
+                throw new RuntimeException("課程資料錯誤");
+            }
+
+            if (userOptional.isEmpty()) {
+                throw new RuntimeException("使用者資料錯誤");
+            }
+            Course course = courseOptional.get();
+            User user = userOptional.get();
+            course.addUser(user);
+            user.addCourse(course);
+            courseRepository.save(course);
+            String msg = String.format("報名 %s 成功", course.getName());
+            return HttpResult.success(msg);
+        } catch (Exception e) {
+            return HttpResult.fail("報名失敗", e.getMessage());
+        }
     }
 }

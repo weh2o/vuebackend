@@ -30,8 +30,13 @@ public class CourseController {
     }
 
     @DeleteMapping("{id}")
-    public HttpResult<String> remove(@PathVariable String id){
+    public HttpResult<String> remove(@PathVariable String id) {
         return courseService.remove(id);
+    }
+
+    @PatchMapping({"/{courseId}/signUp/{userId}"})
+    public HttpResult<String> signUp(@PathVariable String courseId, @PathVariable String userId) {
+        return courseService.signUp(courseId, userId);
     }
 
 }

@@ -25,6 +25,7 @@ import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.Period;
 import java.util.Arrays;
 import java.util.List;
@@ -57,6 +58,8 @@ class InitDataTest {
     @Setter(onMethod_ = @Autowired)
     private CourseLocationRepository locationRepository;
 
+    @Setter(onMethod_ = @Autowired)
+    private CourseRepository courseRepository;
 
     /**
      * 初始化身分
@@ -342,24 +345,29 @@ class InitDataTest {
     void initTeacher() {
         String logTitle = "初始化使用者 - 老師 initTeacher()";
         CRUDLogHelper logHelper = CRUDLogHelper.build(logTitle);
-        boolean exists = userRepository.existsByAccount("teacher");
+
+        String account = "teacher";
+        String password = "1111";
+        String findTeacherNo = "t100";
+
+        boolean exists = userRepository.existsByAccount(account);
         if (!exists) {
             // 教師證
-            Optional<TeacherNo> no = teacherNoRepository.findByNo("t1001");
+            Optional<TeacherNo> no = teacherNoRepository.findByNo(findTeacherNo);
             if (no.isPresent()) {
                 TeacherNo teacherNo = no.get();
                 if (teacherNo.getAvailable()) {
                     Teacher teacher = new Teacher();
                     teacher.setName("超級老師");
-                    teacher.setAccount("teacher");
+                    teacher.setAccount(account);
                     teacher.setGender(Gender.BOY);
                     teacher.setMail("teacher@gmail.com");
                     teacher.setPhone("0988123456");
                     teacher.setAddress("睡在學校");
                     teacher.setBirth(LocalDate.of(1994, 1, 1));
                     teacher.setAge(teacher.getAge());
-                    String password = DigestUtils.md5DigestAsHex("1111".getBytes(StandardCharsets.UTF_8));
-                    teacher.setPassword(password);
+                    String encryptPwd = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
+                    teacher.setPassword(encryptPwd);
                     Teacher dbT = teacherRepository.save(teacher);
 
                     // 教師證
@@ -382,15 +390,18 @@ class InitDataTest {
                         identity.setUserList(userList);
                         identityRepository.save(identity);
                     }
-                    logHelper.saveSuccess("teacher");
+                    logHelper.saveSuccess(account);
                     return;
                 }
-                log.error(logTitle + " 創建失敗，教師證已被使用");
+
+                String msg = String.format("%s 創建失敗，教師證 %s 已被使用", logTitle, teacherNo.getNo());
+                log.error(msg);
                 return;
             }
-            log.error(logTitle + " 創建失敗，教師證不存在");
+            String msg = String.format("%s 創建失敗，教師證 %s 不存在", logTitle, findTeacherNo);
+            log.error(msg);
         } else {
-            logHelper.saveDuplicateFail("teacher");
+            logHelper.saveDuplicateFail(account);
         }
     }
 
@@ -422,6 +433,50 @@ class InitDataTest {
                 logHelper.saveDuplicateFail(nameZh);
             }
         }
+    }
+
+    /**
+     * 初始化課程
+     */
+    @Test
+    @Commit
+    @Order(10)
+    void initCourse() {
+        CRUDLogHelper logHelper = CRUDLogHelper.build("初始化課程 initCourse()");
+        String name = "如何不被老婆發現私房錢";
+        boolean exists = courseRepository.existsByName(name);
+        if (!exists) {
+            try {
+                Course course = new Course();
+                course.setName(name);
+                course.setDeadline(LocalDate.of(2030, 1, 1));
+                course.setMaxCount(30);
+                course.setStartDate(LocalDate.now());
+                course.setEndDate(LocalDate.of(2030, 1, 1));
+                course.setStartTime(LocalTime.of(14, 0));
+                course.setEndTime(LocalTime.of(15, 0));
+                Course dbCourse = courseRepository.save(course);
+
+                String teacherName = "超級老師";
+                List<Teacher> teacherList = teacherRepository.findByName(teacherName);
+                if (teacherList.size() == 0) {
+                    throw new RuntimeException(teacherName + " 不存在");
+                }
+                dbCourse.setTeacher(teacherList.get(0));
+
+                Optional<CourseLocation> locationOptional = locationRepository.findByName(CourseLocationType.LIBRARY.getName());
+                if (locationOptional.isPresent()) {
+                    dbCourse.setLocation(locationOptional.get());
+                }
+                courseRepository.save(dbCourse);
+                logHelper.saveSuccess(name);
+            } catch (Exception e) {
+                logHelper.saveFail(name, e);
+            }
+        } else {
+            logHelper.saveDuplicateFail(name);
+        }
+
     }
 }
 

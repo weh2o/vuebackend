@@ -19,11 +19,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.DigestUtils;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Period;
@@ -60,6 +59,9 @@ class InitDataTest {
 
     @Setter(onMethod_ = @Autowired)
     private CourseRepository courseRepository;
+
+    @Setter(onMethod_ = @Autowired)
+    private PasswordEncoder passwordEncoder;
 
     /**
      * 初始化身分
@@ -151,8 +153,7 @@ class InitDataTest {
                 user.setAddress("無處不在");
                 // 帳密
                 user.setAccount("admin");
-                String password = DigestUtils.md5DigestAsHex("1111".getBytes(StandardCharsets.UTF_8));
-                user.setPassword(password);
+                user.setPassword(passwordEncoder.encode("1111"));
 
                 // 角色權限
                 List<Role> roleList = RoleHelper.getRoleList(Arrays.asList(
@@ -202,8 +203,7 @@ class InitDataTest {
                 stu.setAddress("睡在學校");
                 stu.setBirth(LocalDate.of(2020, 4, 1));
                 stu.setAge(stu.getAge());
-                String password = DigestUtils.md5DigestAsHex("1111".getBytes(StandardCharsets.UTF_8));
-                stu.setPassword(password);
+                stu.setPassword(passwordEncoder.encode("1111"));
 
                 // 權限
                 List<Role> roleList = RoleHelper.getRoleList(Arrays.asList(
@@ -366,8 +366,7 @@ class InitDataTest {
                     teacher.setAddress("睡在學校");
                     teacher.setBirth(LocalDate.of(1994, 1, 1));
                     teacher.setAge(teacher.getAge());
-                    String encryptPwd = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
-                    teacher.setPassword(encryptPwd);
+                    teacher.setPassword(passwordEncoder.encode("1111"));
                     Teacher dbT = teacherRepository.save(teacher);
 
                     // 教師證

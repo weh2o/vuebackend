@@ -1,6 +1,8 @@
 package com.joe.vuebackend.service.impl;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joe.vuebackend.bean.HttpResult;
 import com.joe.vuebackend.bean.LoginInfo;
 import com.joe.vuebackend.bean.RegisterInfo;
@@ -11,12 +13,17 @@ import com.joe.vuebackend.service.StudentService;
 import com.joe.vuebackend.service.TeacherService;
 import com.joe.vuebackend.service.UserService;
 import com.joe.vuebackend.utils.JwtUtil;
-import com.joe.vuebackend.utils.UserHelper;
 import com.joe.vuebackend.vo.UserInfo;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +32,14 @@ import java.util.Optional;
 
 @Service
 @Transactional
+@Slf4j
 public class UserServiceImpl implements UserService {
 
+    @Setter(onMethod_ = @Autowired)
+    private AuthenticationManager authenticationManager;
+
+    @Setter(onMethod_ = @Autowired)
+    private ObjectMapper objectMapper;
 
     @Setter(onMethod_ = @Autowired)
     private UserRepository userRepository;
@@ -49,23 +62,34 @@ public class UserServiceImpl implements UserService {
     @Setter(onMethod_ = @Autowired)
     private TeacherService teacherService;
 
+    @Setter(onMethod_ = @Autowired)
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public HttpResult<UserInfo> login(LoginInfo info) {
-        Optional<User> dbResult = userRepository.findByAccount(info.getAccount());
-        if (dbResult.isPresent()) {
-            User dbUser = dbResult.get();
-            String password = UserHelper.passwordEncryption(info.getPassword());
-            // 登入成功
-            if (dbUser.getPassword().equals(password)) {
-                UserInfo userInfo = UserInfo.of(dbUser);
-                UserInfo.setSpecial(userInfo, dbUser);
-                String token = JwtUtil.sign(userInfo);
-                userInfo.setToken(token);
-                // 上次登入時間
-                dbUser.setLastLoginTime(LocalDateTime.now());
-                userRepository.save(dbUser);
-                return HttpResult.success("登入成功", userInfo);
-            }
+
+        try {
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(info.getAccount(), info.getPassword());
+            // 驗證
+            Authentication authenticate = authenticationManager.authenticate(authenticationToken);
+
+            // 使用者資料
+            User user = (User) authenticate.getPrincipal();
+            UserInfo userInfo = UserInfo.of(user);
+            UserInfo.setSpecial(userInfo, user);
+            String userInfoStr = objectMapper.writeValueAsString(userInfo);
+            String jwtToken = JwtUtil.createJwt(userInfo, userInfoStr);
+            userInfo.setToken(jwtToken);
+            // 上次登入時間
+            user.setLastLoginTime(LocalDateTime.now());
+            userRepository.save(user);
+            return HttpResult.success("登入成功", userInfo);
+        } catch (AuthenticationException e) {
+            log.error("登入失敗", e);
+            return HttpResult.fail(HttpStatus.UNAUTHORIZED.value(), "登入失敗，請再次確認使用者名稱與密碼");
+        } catch (JsonProcessingException e) {
+            log.error("JSON轉換失敗", e);
         }
         return HttpResult.fail(HttpStatus.UNAUTHORIZED.value(), "登入失敗，請再次確認使用者名稱與密碼");
     }
@@ -89,8 +113,7 @@ public class UserServiceImpl implements UserService {
                 isNew = false;
             }
             student.setAccount(info.getAccount());
-            String password = UserHelper.passwordEncryption(info.getPassword());
-            student.setPassword(password);
+            student.setPassword(passwordEncoder.encode("1111"));
             Student resultStu = stuRepository.save(student);
 
             // 新學生:
@@ -137,8 +160,7 @@ public class UserServiceImpl implements UserService {
             }
             // 註冊操作
             target.setAccount(info.getAccount());
-            String password = UserHelper.passwordEncryption(info.getPassword());
-            target.setPassword(password);
+            target.setPassword(passwordEncoder.encode("1111"));
             Teacher resultTeacher = teacherRepository.save(target);
 
             // 新的教師:
@@ -157,7 +179,6 @@ public class UserServiceImpl implements UserService {
             }
             return HttpResult.success("註冊成功");
         }
-
         return HttpResult.fail("註冊失敗");
     }
 
@@ -182,10 +203,10 @@ public class UserServiceImpl implements UserService {
         if (optional.isPresent()) {
             User user = optional.get();
             String dbOldPass = user.getPassword();
-            String inputOldPass = UserHelper.passwordEncryption(pswInfo.getOldPassword());
+            boolean matches = passwordEncoder.matches(pswInfo.getOldPassword(), dbOldPass);
             // 密碼一致，修改成新密碼
-            if (dbOldPass.equals(inputOldPass)) {
-                String inputNewPass = UserHelper.passwordEncryption(pswInfo.getNewPassword());
+            if (matches) {
+                String inputNewPass = passwordEncoder.encode(pswInfo.getNewPassword());
                 user.setPassword(inputNewPass);
                 userRepository.save(user);
                 return HttpResult.success("密碼修改成功");

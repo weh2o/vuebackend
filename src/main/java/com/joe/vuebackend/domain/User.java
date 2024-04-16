@@ -1,18 +1,20 @@
 package com.joe.vuebackend.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.joe.vuebackend.constant.Gender;
 import com.joe.vuebackend.convert.GenderConvert;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 帳號
@@ -23,7 +25,7 @@ import java.util.Objects;
 @Inheritance(strategy = InheritanceType.JOINED)
 @AllArgsConstructor
 @NoArgsConstructor
-public class User extends BaseEntity {
+public class User extends BaseEntity implements UserDetails {
 
     /**
      * 使用者名稱
@@ -125,6 +127,30 @@ public class User extends BaseEntity {
     @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<Course> courseList;
 
+    /**
+     * 是否啟動
+     */
+    @Column(name = "enable")
+    private boolean enable = true;
+
+    /**
+     * 帳號是否沒過期
+     */
+    @Column(name = "accountNonExpired")
+    private boolean accountNonExpired = true;
+
+    /**
+     * 帳號是否沒被鎖定
+     */
+    @Column(name = "accountNonLocked")
+    private boolean accountNonLocked = true;
+
+    /**
+     * 密碼是否沒過期
+     */
+    @Column(name = "credentialsNonExpired")
+    private boolean credentialsNonExpired = true;
+
 
     public Integer getAge() {
         if (Objects.nonNull(birth)) {
@@ -148,4 +174,43 @@ public class User extends BaseEntity {
             courseList.add(source);
         }
     }
+
+    @JsonIgnore
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        HashSet<SimpleGrantedAuthority> authorities = new HashSet<>();
+        roles.forEach(role -> {
+            String name = role.getName();
+            // 角色
+            SimpleGrantedAuthority roleAuthority = new SimpleGrantedAuthority("ROLE_" + name);
+            authorities.add(roleAuthority);
+        });
+        return authorities;
+    }
+
+    @Override
+    public String getUsername() {
+        return account;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return accountNonExpired;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return accountNonLocked;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return credentialsNonExpired;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enable;
+    }
+
 }

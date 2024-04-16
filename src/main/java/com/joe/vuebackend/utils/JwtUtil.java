@@ -6,8 +6,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.joe.vuebackend.bean.HttpResult;
 import com.joe.vuebackend.vo.UserInfo;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.List;
@@ -15,6 +15,7 @@ import java.util.List;
 /**
  * JWT工具類
  */
+@Component
 public class JwtUtil {
 
     /**
@@ -33,32 +34,13 @@ public class JwtUtil {
     private static final String SECRET = "jwt_secret";
 
     /**
-     * 生成簽名(token)，一天後過期
+     * 創建JwtToken
      *
-     * @param userId 使用者識別碼
-     * @return 密鑰token
+     * @param userInfo    使用者資料物件
+     * @param userInfoStr 使用者資料字串類型
+     * @return
      */
-    public static String sign(String userId) {
-        try {
-            // 當前時間 + 5分鐘
-            Date date = new Date(System.currentTimeMillis() + EXPIRE_TIME_1_DAY);
-            // 設置密鑰，並選擇加密方式
-            Algorithm algorithm = Algorithm.HMAC256(SECRET);
-            // 生成token
-            return JWT.create()
-                    // 將 user id 保存到 token 裡面
-                    .withAudience(userId)
-                    .withClaim("identity", "xx")
-                    // token過期時間
-                    .withExpiresAt(date)
-                    // token 的密鑰
-                    .sign(algorithm);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    public static String sign(UserInfo userInfo) {
+    public static String createJwt(UserInfo userInfo, String userInfoStr) {
         try {
             // 當前時間 + 5分鐘
             Date date = new Date(System.currentTimeMillis() + EXPIRE_TIME_1_DAY);
@@ -70,6 +52,7 @@ public class JwtUtil {
                     .withAudience(userInfo.getId())
                     .withClaim("identity", userInfo.getIdentity())
                     .withClaim("roles", userInfo.getRoles())
+                    .withClaim("userInfo", userInfoStr)
                     // token過期時間
                     .withExpiresAt(date)
                     // token 的密鑰
@@ -80,22 +63,19 @@ public class JwtUtil {
     }
 
     /**
-     * 校驗token
+     * 驗驗token
      *
-     * @param token
-     * @return
+     * @param token JWT Token
+     * @return 驗證結果
      */
-    public static HttpResult<String> checkSign(String token) {
-        // 如果以下代碼沒出現異常代表token是相同的
+    public boolean verifyToken(String token) {
         try {
-            // 根據指定密鑰、加密方式，創建驗證對象
             Algorithm algorithm = Algorithm.HMAC256(SECRET);
             JWTVerifier verifier = JWT.require(algorithm).build();
-            // 驗證token，如果不相同會出現異常
             DecodedJWT jwt = verifier.verify(token);
-            return HttpResult.success("token 有效");
+            return true;
         } catch (JWTVerificationException exception) {
-            return HttpResult.fail("token 無效");
+            return false;
         }
     }
 
@@ -124,6 +104,34 @@ public class JwtUtil {
     public static String getIdentity(String token) {
         try {
             return JWT.decode(token).getClaim("identity").asString();
+        } catch (JWTDecodeException e) {
+            return null;
+        }
+    }
+
+    /**
+     * 根據token獲取用戶資料
+     *
+     * @param token Jwt Token
+     * @return 用戶資料
+     */
+    public String getUserInfo(String token) {
+        try {
+            return JWT.decode(token).getClaim("userInfo").asString();
+        } catch (JWTDecodeException e) {
+            return null;
+        }
+    }
+
+    /**
+     * 根據token獲取權限列表
+     *
+     * @param token Jwt Token
+     * @return 權限列表
+     */
+    public List<String> getUserAuth(String token) {
+        try {
+            return JWT.decode(token).getClaim("userAuth").asList(String.class);
         } catch (JWTDecodeException e) {
             return null;
         }

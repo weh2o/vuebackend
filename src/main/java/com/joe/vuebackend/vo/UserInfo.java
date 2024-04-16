@@ -9,10 +9,13 @@ import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * 展示到前端的使用者資料
@@ -24,6 +27,11 @@ public class UserInfo {
      * 識別碼
      */
     private String id;
+
+    /**
+     * 帳號
+     */
+    private String account;
 
     /**
      * 姓名
@@ -76,9 +84,14 @@ public class UserInfo {
     private String identity;
 
     /**
-     * 角色權限
+     * 角色
      */
     private String roles;
+
+    /**
+     * 權限
+     */
+    private List<String> authorities;
 
     private String token;
 
@@ -99,6 +112,10 @@ public class UserInfo {
         if (StringUtils.isNotEmpty(source.getId())) {
             target.setId(source.getId());
         }
+        // 帳號
+        if (StringUtils.isNotEmpty(source.getAccount())) {
+            target.setAccount(source.getAccount());
+        }
         // 姓名
         if (StringUtils.isNotEmpty(source.getName())) {
             target.setName(source.getName());
@@ -107,10 +124,18 @@ public class UserInfo {
         if (Objects.nonNull(source.getIdentity())) {
             target.setIdentity(source.getIdentity().getCode());
         }
-        // 角色權限
+        // 角色
         if (CollectionUtils.isNotEmpty(source.getRoles())) {
             String strRoles = RoleHelper.ofJoinName(source.getRoles());
             target.setRoles(strRoles);
+        }
+        // 權限
+        if (CollectionUtils.isNotEmpty(source.getAuthorities())) {
+            Set<SimpleGrantedAuthority> authorities = (Set<SimpleGrantedAuthority>) source.getAuthorities();
+            List<String> authList = authorities.stream()
+                    .map(SimpleGrantedAuthority::getAuthority)
+                    .toList();
+            target.setAuthorities(authList);
         }
         return target;
     }

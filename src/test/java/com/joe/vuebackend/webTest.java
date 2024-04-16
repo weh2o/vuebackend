@@ -40,15 +40,6 @@ public class webTest {
 
 
     @Test
-    void tokenTest() {
-        String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmZWI5OTA3NC05ODFlLTQ0NmItYjc4OC1hNzllOGI0OWIwNjgiLCJleHAiOjE3MTIxMTc0ODB9.79GcvsOqBJcUDejeDbdwfvINmVdXuBm4M0IfYHheekE";
-        HttpResult<String> result = JwtUtil.checkSign(token);
-
-        String id = JwtUtil.getUserId(token);
-        System.out.println();
-    }
-
-    @Test
     void registerTest() {
         RegisterInfo info = new RegisterInfo();
         info.setName("測試");

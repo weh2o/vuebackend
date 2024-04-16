@@ -26,9 +26,4 @@ public class WebController {
     public HttpResult<String> register(@RequestBody RegisterInfo info) {
         return userService.register(info);
     }
-
-    @GetMapping("/tokenValidate/{token}")
-    public HttpResult<String> tokenValidate(@PathVariable String token) {
-        return JwtUtil.checkSign(token);
-    }
 }

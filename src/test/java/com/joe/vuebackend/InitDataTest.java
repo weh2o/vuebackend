@@ -316,8 +316,8 @@ class InitDataTest {
     @Order(7)
     void initTeacherNos() {
         CRUDLogHelper logHelper = CRUDLogHelper.build("初始化教師證 initTeacherNos()");
-        for (int i = 1; i <= 10; i++) {
-            String no = "t" + 100 + i;
+        for (int i = 0; i <= 10; i++) {
+            String no = "t" + (100 + i);
             boolean exists = teacherNoRepository.existsByNo(no);
             if (!exists) {
                 try {
@@ -366,7 +366,7 @@ class InitDataTest {
                     teacher.setAddress("睡在學校");
                     teacher.setBirth(LocalDate.of(1994, 1, 1));
                     teacher.setAge(teacher.getAge());
-                    teacher.setPassword(passwordEncoder.encode("1111"));
+                    teacher.setPassword(passwordEncoder.encode(password));
                     Teacher dbT = teacherRepository.save(teacher);
 
                     // 教師證

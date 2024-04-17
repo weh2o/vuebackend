@@ -3,7 +3,8 @@
 - JAVA 17
 - MySQL 8
 - SpringBoot 3.2.4
-- Spring JPA 3.2.4
+- SpringSecurity 6.2.3
+- Spring Data JPA 3.2.4
 - JWT 4.4.0
 
 # 專案說明

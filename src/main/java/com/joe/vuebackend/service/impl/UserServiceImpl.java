@@ -73,13 +73,13 @@ public class UserServiceImpl implements UserService {
                     new UsernamePasswordAuthenticationToken(info.getAccount(), info.getPassword());
             // 驗證
             Authentication authenticate = authenticationManager.authenticate(authenticationToken);
-
             // 使用者資料
             User user = (User) authenticate.getPrincipal();
+            // 轉成換傳給前端的格式
             UserInfo userInfo = UserInfo.of(user);
             UserInfo.setSpecial(userInfo, user);
-            String userInfoStr = objectMapper.writeValueAsString(userInfo);
-            String jwtToken = JwtUtil.createJwt(userInfo, userInfoStr);
+            // 創建token
+            String jwtToken = JwtUtil.createJwt(userInfo);
             userInfo.setToken(jwtToken);
             // 上次登入時間
             user.setLastLoginTime(LocalDateTime.now());
@@ -88,10 +88,7 @@ public class UserServiceImpl implements UserService {
         } catch (AuthenticationException e) {
             log.error("登入失敗", e);
             return HttpResult.fail(HttpStatus.UNAUTHORIZED.value(), "登入失敗，請再次確認使用者名稱與密碼");
-        } catch (JsonProcessingException e) {
-            log.error("JSON轉換失敗", e);
         }
-        return HttpResult.fail(HttpStatus.UNAUTHORIZED.value(), "登入失敗，請再次確認使用者名稱與密碼");
     }
 
     @Override

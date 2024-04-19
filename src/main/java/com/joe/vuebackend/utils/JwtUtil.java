@@ -6,11 +6,13 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joe.vuebackend.vo.UserInfo;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * JWT工具類
@@ -36,27 +38,30 @@ public class JwtUtil {
     /**
      * 創建JwtToken
      *
-     * @param userInfo    使用者資料物件
-     * @param userInfoStr 使用者資料字串類型
+     * @param userInfo 使用者資料物件
      * @return
      */
-    public static String createJwt(UserInfo userInfo, String userInfoStr) {
+    public static String createJwt(UserInfo userInfo) {
         try {
-            // 當前時間 + 5分鐘
-            Date date = new Date(System.currentTimeMillis() + EXPIRE_TIME_1_DAY);
-            // 設置密鑰，並選擇加密方式
-            Algorithm algorithm = Algorithm.HMAC256(SECRET);
-            // 生成token
-            return JWT.create()
-                    // 將 user id 保存到 token 裡面
-                    .withAudience(userInfo.getId())
-                    .withClaim("identity", userInfo.getIdentity())
-                    .withClaim("roles", userInfo.getRoles())
-                    .withClaim("userInfo", userInfoStr)
-                    // token過期時間
-                    .withExpiresAt(date)
-                    // token 的密鑰
-                    .sign(algorithm);
+            ObjectMapper objectMapper = SpringUtils.getBean(ObjectMapper.class);
+            if (Objects.nonNull(objectMapper)) {
+                // 當前時間 + 5分鐘
+                Date date = new Date(System.currentTimeMillis() + EXPIRE_TIME_1_DAY);
+                // 設置密鑰，並選擇加密方式
+                Algorithm algorithm = Algorithm.HMAC256(SECRET);
+                // 生成token
+                return JWT.create()
+                        // 將 user id 保存到 token 裡面
+                        .withAudience(userInfo.getId())
+                        .withClaim("identity", userInfo.getIdentity())
+                        .withClaim("roles", userInfo.getRoles())
+                        .withClaim("userInfo", objectMapper.writeValueAsString(userInfo))
+                        // token過期時間
+                        .withExpiresAt(date)
+                        // token 的密鑰
+                        .sign(algorithm);
+            }
+            return null;
         } catch (Exception e) {
             return null;
         }

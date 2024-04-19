@@ -176,6 +176,18 @@ public class User extends BaseEntity implements UserDetails {
         }
     }
 
+    /**
+     * 獲取角色英文名稱List
+     *
+     * @return
+     */
+    public List<String> getRolesName() {
+        if (CollectionUtils.isNotEmpty(roles)) {
+            return roles.stream().map(Role::getName).toList();
+        }
+        return null;
+    }
+
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -212,18 +224,6 @@ public class User extends BaseEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return enable;
-    }
-
-    /**
-     * 獲取角色英文名稱List
-     *
-     * @return
-     */
-    public List<String> getRolesName() {
-        if (CollectionUtils.isNotEmpty(roles)) {
-            return roles.stream().map(Role::getName).toList();
-        }
-        return null;
     }
 
 }

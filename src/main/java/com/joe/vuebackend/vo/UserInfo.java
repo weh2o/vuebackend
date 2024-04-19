@@ -4,7 +4,6 @@ import com.joe.vuebackend.constant.Gender;
 import com.joe.vuebackend.domain.Student;
 import com.joe.vuebackend.domain.Teacher;
 import com.joe.vuebackend.domain.User;
-import com.joe.vuebackend.utils.RoleHelper;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -86,7 +85,7 @@ public class UserInfo {
     /**
      * 角色
      */
-    private String roles;
+    private List<String> roles;
 
     /**
      * 權限
@@ -131,8 +130,7 @@ public class UserInfo {
         }
         // 角色
         if (CollectionUtils.isNotEmpty(source.getRoles())) {
-            String strRoles = RoleHelper.ofJoinName(source.getRoles());
-            target.setRoles(strRoles);
+            target.setRoles(source.getRolesName());
         }
         // 權限
         if (CollectionUtils.isNotEmpty(source.getAuthorities())) {

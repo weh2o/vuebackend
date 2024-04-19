@@ -67,7 +67,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public HttpResult<UserInfo> login(LoginInfo info) {
-
         try {
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(info.getAccount(), info.getPassword());
@@ -93,7 +92,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public HttpResult<String> register(RegisterInfo info) {
-
         String identity = info.getIdentity();
         boolean isNew = true;
         // 學生
@@ -110,7 +108,7 @@ public class UserServiceImpl implements UserService {
                 isNew = false;
             }
             student.setAccount(info.getAccount());
-            student.setPassword(passwordEncoder.encode("1111"));
+            student.setPassword(passwordEncoder.encode(info.getPassword()));
             Student resultStu = stuRepository.save(student);
 
             // 新學生:
@@ -157,7 +155,7 @@ public class UserServiceImpl implements UserService {
             }
             // 註冊操作
             target.setAccount(info.getAccount());
-            target.setPassword(passwordEncoder.encode("1111"));
+            target.setPassword(passwordEncoder.encode(info.getPassword()));
             Teacher resultTeacher = teacherRepository.save(target);
 
             // 新的教師:

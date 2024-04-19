@@ -99,6 +99,11 @@ public class UserInfo {
 
     private String newPassword;
 
+    /**
+     * 清單
+     */
+    private List<MenuVo> menus;
+
 
     /**
      * 轉換 識別碼、姓名、身分

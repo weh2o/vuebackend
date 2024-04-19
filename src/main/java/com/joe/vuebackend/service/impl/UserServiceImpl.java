@@ -9,10 +9,12 @@ import com.joe.vuebackend.bean.RegisterInfo;
 import com.joe.vuebackend.constant.IdentityType;
 import com.joe.vuebackend.domain.*;
 import com.joe.vuebackend.repository.*;
+import com.joe.vuebackend.service.MenuService;
 import com.joe.vuebackend.service.StudentService;
 import com.joe.vuebackend.service.TeacherService;
 import com.joe.vuebackend.service.UserService;
 import com.joe.vuebackend.utils.JwtUtil;
+import com.joe.vuebackend.vo.MenuVo;
 import com.joe.vuebackend.vo.UserInfo;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -65,6 +68,9 @@ public class UserServiceImpl implements UserService {
     @Setter(onMethod_ = @Autowired)
     private PasswordEncoder passwordEncoder;
 
+    @Setter(onMethod_ = @Autowired)
+    private MenuService menuService;
+
     @Override
     public HttpResult<UserInfo> login(LoginInfo info) {
         try {
@@ -77,6 +83,9 @@ public class UserServiceImpl implements UserService {
             // 轉成換傳給前端的格式
             UserInfo userInfo = UserInfo.of(user);
             UserInfo.setSpecial(userInfo, user);
+            // 清單
+            List<MenuVo> menuVos = menuService.getMenuVoByRole(user.getRolesName());
+            userInfo.setMenus(menuVos);
             // 創建token
             String jwtToken = JwtUtil.createJwt(userInfo);
             userInfo.setToken(jwtToken);

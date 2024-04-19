@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * 學生
+ */
 @RestController
-@CrossOrigin
 @RequestMapping("/student")
 public class StudentController {
 

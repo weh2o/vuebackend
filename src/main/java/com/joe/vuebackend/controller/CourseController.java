@@ -10,7 +10,9 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin
+/**
+ * 課程
+ */
 @RestController
 @RequestMapping("/course")
 public class CourseController {

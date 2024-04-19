@@ -9,9 +9,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * 使用者
+ */
 @RestController
 @RequestMapping("/user")
-@CrossOrigin
 public class UserController {
 
     @Setter(onMethod_ = @Autowired)

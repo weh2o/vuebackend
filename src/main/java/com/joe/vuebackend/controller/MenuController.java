@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Comparator;
 import java.util.List;
 
-@CrossOrigin
+/**
+ * 清單
+ */
 @RestController
 @RequestMapping("/menu")
 public class MenuController {

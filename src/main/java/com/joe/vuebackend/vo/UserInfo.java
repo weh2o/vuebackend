@@ -4,6 +4,7 @@ import com.joe.vuebackend.constant.Gender;
 import com.joe.vuebackend.domain.Student;
 import com.joe.vuebackend.domain.Teacher;
 import com.joe.vuebackend.domain.User;
+import com.joe.vuebackend.utils.DateUtil;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -103,6 +104,11 @@ public class UserInfo {
      */
     private List<MenuVo> menus;
 
+    /**
+     * token過期時間
+     */
+    private String expireTokenTime;
+
 
     /**
      * 轉換 識別碼、姓名、身分
@@ -176,14 +182,18 @@ public class UserInfo {
         }
 
         if (ObjectUtils.isNotEmpty(source.getLastLoginTime())) {
-            LocalDateTime sourceLastLoginTime = source.getLastLoginTime();
-            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
-            String formatDateTime = timeFormatter.format(sourceLastLoginTime);
+            String formatDateTime = DateUtil.formatLocalDateTime(source.getLastLoginTime());
             target.setLastLoginTime(formatDateTime);
         }
 
         if (StringUtils.isNotEmpty(source.getAddress())) {
             target.setAddress(source.getAddress());
+        }
+
+        // token過期時間
+        if (Objects.nonNull(source.getExpireTokenTime())){
+            String formatDateTime = DateUtil.formatLocalDateTime(source.getExpireTokenTime());
+            target.setExpireTokenTime(formatDateTime);
         }
 
         return target;
@@ -254,6 +264,20 @@ public class UserInfo {
         if (StringUtils.isNotEmpty(source.getAddress())) {
             target.setAddress(source.getAddress());
         }
+
+        // 上次登入時間
+        if (ObjectUtils.isNotEmpty(source.getLastLoginTime())) {
+            String sourceLastLoginTime = source.getLastLoginTime();
+            LocalDateTime lastLoginTime = DateUtil.parseToLocalDateTime(sourceLastLoginTime);
+            target.setLastLoginTime(lastLoginTime);
+        }
+
+        // token過期時間
+        if (Objects.nonNull(source.getExpireTokenTime())){
+            LocalDateTime tokenTimeout = DateUtil.parseToLocalDateTime(source.getExpireTokenTime());
+            target.setExpireTokenTime(tokenTimeout);
+        }
+
         return target;
     }
 

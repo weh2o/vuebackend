@@ -1,11 +1,10 @@
 package com.joe.vuebackend.service.impl;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joe.vuebackend.bean.HttpResult;
 import com.joe.vuebackend.bean.LoginInfo;
 import com.joe.vuebackend.bean.RegisterInfo;
+import com.joe.vuebackend.constant.CacheConstant;
 import com.joe.vuebackend.constant.IdentityType;
 import com.joe.vuebackend.domain.*;
 import com.joe.vuebackend.repository.*;
@@ -14,6 +13,7 @@ import com.joe.vuebackend.service.StudentService;
 import com.joe.vuebackend.service.TeacherService;
 import com.joe.vuebackend.service.UserService;
 import com.joe.vuebackend.utils.JwtUtil;
+import com.joe.vuebackend.utils.RedisCacheUtil;
 import com.joe.vuebackend.vo.MenuVo;
 import com.joe.vuebackend.vo.UserInfo;
 import lombok.Setter;
@@ -31,7 +31,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional
@@ -40,9 +42,6 @@ public class UserServiceImpl implements UserService {
 
     @Setter(onMethod_ = @Autowired)
     private AuthenticationManager authenticationManager;
-
-    @Setter(onMethod_ = @Autowired)
-    private ObjectMapper objectMapper;
 
     @Setter(onMethod_ = @Autowired)
     private UserRepository userRepository;
@@ -71,6 +70,9 @@ public class UserServiceImpl implements UserService {
     @Setter(onMethod_ = @Autowired)
     private MenuService menuService;
 
+    @Setter(onMethod_ = @Autowired)
+    private RedisCacheUtil redisCacheUtil;
+
     @Override
     public HttpResult<UserInfo> login(LoginInfo info) {
         try {
@@ -78,10 +80,20 @@ public class UserServiceImpl implements UserService {
                     new UsernamePasswordAuthenticationToken(info.getAccount(), info.getPassword());
             // 驗證
             Authentication authenticate = authenticationManager.authenticate(authenticationToken);
+            // 根據是否勾選「記住我」設置token過期時間
+            int expireDay = 1;
+            if (Objects.nonNull(info.getRememberMe())) {
+                expireDay = 7;
+            }
             // 使用者資料
             User user = (User) authenticate.getPrincipal();
+            // 上次登入時間
+            user.setLastLoginTime(LocalDateTime.now());
+            // token過期時間
+            user.setExpireTokenTime(LocalDateTime.now().plusDays(expireDay));
+            userRepository.save(user);
             // 轉成換傳給前端的格式
-            UserInfo userInfo = UserInfo.of(user);
+            UserInfo userInfo = UserInfo.ofAll(user);
             UserInfo.setSpecial(userInfo, user);
             // 清單
             List<MenuVo> menuVos = menuService.getMenuVoByRole(user.getRolesName());
@@ -89,9 +101,9 @@ public class UserServiceImpl implements UserService {
             // 創建token
             String jwtToken = JwtUtil.createJwt(userInfo);
             userInfo.setToken(jwtToken);
-            // 上次登入時間
-            user.setLastLoginTime(LocalDateTime.now());
-            userRepository.save(user);
+
+            // 存入Redis
+            redisCacheUtil.setCacheObject(CacheConstant.LOGIN_TOKEN + jwtToken, userInfo, expireDay, TimeUnit.DAYS);
             return HttpResult.success("登入成功", userInfo);
         } catch (AuthenticationException e) {
             log.error("登入失敗", e);
@@ -184,6 +196,17 @@ public class UserServiceImpl implements UserService {
             return HttpResult.success("註冊成功");
         }
         return HttpResult.fail("註冊失敗");
+    }
+
+    public HttpResult<String> logout(String token) {
+        String key = String.format("%s%s", CacheConstant.LOGIN_TOKEN, token);
+
+        boolean result = redisCacheUtil.deleteObject(key);
+        if (result) {
+            return HttpResult.success("登出成功");
+        }
+        log.error("Redis的Token刪除失敗");
+        return HttpResult.fail("出了點問題..");
     }
 
     @Override

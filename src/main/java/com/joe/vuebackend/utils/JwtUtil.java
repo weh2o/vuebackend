@@ -7,6 +7,7 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.joe.vuebackend.constant.TimeConstant;
 import com.joe.vuebackend.vo.UserInfo;
 import org.springframework.stereotype.Component;
 
@@ -19,16 +20,6 @@ import java.util.Objects;
  */
 @Component
 public class JwtUtil {
-
-    /**
-     * 過期時間: 5分鐘
-     */
-    private static final long EXPIRE_TIME = 1 * 60 * 1000;
-
-
-    private static final long EXPIRE_TIME_1_DAY = 1 * 24 * 60 * 60 * 1000;
-
-    private static final long EXPIRE_TIME_7_DAY = 7 * 24 * 60 * 60 * 1000;
 
     /**
      * jwt 密鑰
@@ -45,17 +36,18 @@ public class JwtUtil {
         try {
             ObjectMapper objectMapper = SpringUtils.getBean(ObjectMapper.class);
             if (Objects.nonNull(objectMapper)) {
-                // 當前時間 + 5分鐘
-                Date date = new Date(System.currentTimeMillis() + EXPIRE_TIME_1_DAY);
+                // 設置過期時間
+                Date date = new Date(System.currentTimeMillis() + TimeConstant.TIME_7_DAY);
                 // 設置密鑰，並選擇加密方式
                 Algorithm algorithm = Algorithm.HMAC256(SECRET);
+                String userInfoStr = objectMapper.writeValueAsString(userInfo);
                 // 生成token
                 return JWT.create()
                         // 將 user id 保存到 token 裡面
                         .withAudience(userInfo.getId())
                         .withClaim("identity", userInfo.getIdentity())
                         .withClaim("roles", userInfo.getRoles())
-                        .withClaim("userInfo", objectMapper.writeValueAsString(userInfo))
+                        .withClaim("userInfo", userInfoStr)
                         // token過期時間
                         .withExpiresAt(date)
                         // token 的密鑰

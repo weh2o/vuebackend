@@ -1,6 +1,12 @@
 package com.joe.vuebackend.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.joe.vuebackend.constant.Gender;
 import com.joe.vuebackend.convert.GenderConvert;
 import jakarta.persistence.*;
@@ -58,6 +64,8 @@ public class User extends BaseEntity implements UserDetails {
      * 生日
      */
     @Column(name = "birth")
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate birth;
 
     /**
@@ -88,6 +96,8 @@ public class User extends BaseEntity implements UserDetails {
      * 上次登入時間
      */
     @Column(name = "last_login_time")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime lastLoginTime;
 
     /**
@@ -152,6 +162,14 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "credentialsNonExpired")
     private boolean credentialsNonExpired = true;
 
+    /**
+     * token過期時間
+     */
+    @Transient
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    private LocalDateTime expireTokenTime;
+
 
     public Integer getAge() {
         if (Objects.nonNull(birth)) {
@@ -181,6 +199,7 @@ public class User extends BaseEntity implements UserDetails {
      *
      * @return
      */
+    @JsonIgnore
     public List<String> getRolesName() {
         if (CollectionUtils.isNotEmpty(roles)) {
             return roles.stream().map(Role::getName).toList();

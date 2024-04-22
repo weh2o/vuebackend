@@ -22,4 +22,9 @@ public class LoginInfo {
      * 身分
      */
     private String identity;
+
+    /**
+     * 記住登入狀態
+     */
+    private Boolean rememberMe;
 }

@@ -1,5 +1,6 @@
 package com.joe.vuebackend.config;
 
+import com.joe.vuebackend.constant.URLConstant;
 import com.joe.vuebackend.filter.JwtVerifyFilter;
 import com.joe.vuebackend.service.impl.UserDetailService;
 import lombok.Setter;
@@ -57,8 +58,9 @@ public class SecurityConfig {
         // 配置請求攔截方式
         http.authorizeHttpRequests(
                 auth -> auth
-                        .requestMatchers("/login").permitAll()
-                        .requestMatchers("/register").permitAll()
+                        .requestMatchers(URLConstant.LOGOUT).permitAll()
+                        .requestMatchers(URLConstant.LOGIN).permitAll()
+                        .requestMatchers(URLConstant.REGISTER).permitAll()
                         .anyRequest().authenticated()
         );
 

@@ -2,7 +2,6 @@ package com.joe.vuebackend.service;
 
 import com.joe.vuebackend.bean.HttpResult;
 import com.joe.vuebackend.bean.LoginInfo;
-import com.joe.vuebackend.bean.PasswordInfo;
 import com.joe.vuebackend.bean.RegisterInfo;
 import com.joe.vuebackend.vo.UserInfo;
 
@@ -44,9 +43,18 @@ public interface UserService {
 
     /**
      * 修改使用者基本資料
-     * @param id 使用者識別碼
+     *
+     * @param id       使用者識別碼
      * @param userInfo 新的使用者基本資料
      * @return
      */
     HttpResult<String> updateInfo(String id, UserInfo userInfo);
+
+    /**
+     * 登出
+     *
+     * @param token
+     * @return
+     */
+    HttpResult<String> logout(String token);
 }

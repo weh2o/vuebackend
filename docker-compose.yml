@@ -41,3 +41,19 @@ services:
       - '--default-authentication-plugin=mysql_native_password'
       - '--log-bin-trust-function-creators=1'
       - '--lower_case_table_names=1'
+
+  redis:
+    container_name: my-docker-redis
+    volumes: # 掛載映射，讓本地的資料和docker容器中的資料連接。 本地目錄 : 容器裡的目錄
+      - ../docker/redis/data:/data                                     # Redis資料存放位置
+      - ./docker/redis/myRedis.conf:/usr/local/etc/redis/redis2.conf    # Redis配置文件
+    image: redis:7.0.11
+    ports:
+      - "7000:6379"
+    deploy: # 指定部署和運行服務的相關配置
+      resources: # 配置資源限制
+        limits:
+          memory: 2G         # 記憶體2G
+    command: # 指定容器啟動時執行的命令
+#            redis-server    # 啟動Redis
+      redis-server /usr/local/etc/redis/redis2.conf --appendonly yes       # 啟動Redis，指定配置文件

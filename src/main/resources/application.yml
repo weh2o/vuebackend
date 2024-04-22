@@ -8,4 +8,20 @@ spring:
     password: qwer1234
   jpa:
     generate-ddl: true
+    show-sql: false
+    properties:
+      hibernate.format_sql: true
+  data:
+    redis:
+      host: localhost         #IP地址 【默認localhost】
+      port: 7000              #端口號 【默認6379】
+      password: 1111          #密碼 【沒設置可省略】
+      database: 0             #使用的Redis資料庫。 【默認是使用0號】
+      timeout: 3000           #連線超時時間
+      lettuce:                #使用連接池 【有jedis、lettuce。 默認是lettuce】
+        pool:
+          max-active: 8       #最大連接數【默認8，使用複數代表沒有限制】
+          max-idle: 8         #最大空閒連接數【默認8】
+          min-idle: 0         #最小空閒連接數 【默認0】
+          max-wait: -1        #最大堵塞等待時間 【默認-1，沒有限制】
 

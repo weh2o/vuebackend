@@ -60,7 +60,7 @@ public class TeacherVo {
         // 生日、年紀
         if (Objects.nonNull(source.getBirth())) {
             LocalDate localDate = source.getBirth();
-            target.setBirth(DateUtil.formatToYYYYMMDD(localDate));
+            target.setBirth(DateUtil.formatLocalDate(localDate));
             // 年紀
             target.setAge(String.valueOf(source.getAge()));
         }

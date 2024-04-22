@@ -141,8 +141,8 @@ public class CourseVo {
         LocalDate startDate = source.getStartDate();
         LocalDate endDate = source.getEndDate();
         if (Objects.nonNull(startDate) && Objects.nonNull(endDate)) {
-            String start = DateUtil.formatToYYYYMMDD(startDate);
-            String end = DateUtil.formatToYYYYMMDD(endDate);
+            String start = DateUtil.formatLocalDate(startDate);
+            String end = DateUtil.formatLocalDate(endDate);
             String result = String.format("%s ~ %s", start, end);
             target.setCourseDate(result);
             target.setStartDate(start);
@@ -155,13 +155,13 @@ public class CourseVo {
         if (Objects.nonNull(startTime) && Objects.nonNull(endTime)) {
             String result = String.format("%s ~ %s", startTime, endTime);
             target.setCourseTime(result);
-            target.setStartTime(DateUtil.formatToHHMM(startTime));
-            target.setEndTime(DateUtil.formatToHHMM(endTime));
+            target.setStartTime(DateUtil.formatLocalTime(startTime));
+            target.setEndTime(DateUtil.formatLocalTime(endTime));
         }
 
         // 截止日期
         if (Objects.nonNull(source.getDeadline())) {
-            String deadlineStr = DateUtil.formatToYYYYMMDD(source.getDeadline());
+            String deadlineStr = DateUtil.formatLocalDate(source.getDeadline());
             target.setDeadline(deadlineStr);
         }
 

@@ -3,6 +3,7 @@ package com.joe.vuebackend.utils;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -29,12 +30,23 @@ public class DateUtil {
     }
 
     /**
+     * 格式化日期 yyyy-MM-dd HH:mm:ss (24小時制)
+     *
+     * @param localDateTime
+     * @return
+     */
+    public static String formatLocalDateTime(LocalDateTime localDateTime) {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return dateTimeFormatter.format(localDateTime);
+    }
+
+    /**
      * 格式化日期 yyyy-MM-dd
      *
      * @param localDate
      * @return
      */
-    public static String formatToYYYYMMDD(LocalDate localDate) {
+    public static String formatLocalDate(LocalDate localDate) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return dateTimeFormatter.format(localDate);
     }
@@ -45,8 +57,20 @@ public class DateUtil {
      * @param localTime
      * @return
      */
-    public static String formatToHHMM(LocalTime localTime) {
+    public static String formatLocalTime(LocalTime localTime) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm");
         return dateTimeFormatter.format(localTime);
+    }
+
+    /**
+     * 解析 yyyy-MM-dd HH:mm:ss 格式日期
+     * <br/>
+     *
+     * @param strDate yyyy-MM-dd HH:mm:ss 格式日期
+     * @return
+     */
+    public static LocalDateTime parseToLocalDateTime(String strDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return LocalDateTime.parse(strDate, formatter);
     }
 }

@@ -25,6 +25,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,6 +75,7 @@ public class UserServiceImpl implements UserService {
     private RedisCacheUtil redisCacheUtil;
 
     @Override
+    @Transactional
     public HttpResult<UserInfo> login(LoginInfo info) {
         try {
             UsernamePasswordAuthenticationToken authenticationToken =
@@ -200,7 +202,6 @@ public class UserServiceImpl implements UserService {
 
     public HttpResult<String> logout(String token) {
         String key = String.format("%s%s", CacheConstant.LOGIN_TOKEN, token);
-
         boolean result = redisCacheUtil.deleteObject(key);
         if (result) {
             return HttpResult.success("登出成功");
@@ -210,15 +211,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public HttpResult<UserInfo> getInfo(String token) {
-        String id = JwtUtil.getUserId(token);
-        if (StringUtils.isNotEmpty(id)) {
-            Optional<User> optional = userRepository.findById(id);
-            if (optional.isPresent()) {
-                User dbUser = optional.get();
-                UserInfo userInfo = UserInfo.ofAll(dbUser);
-                UserInfo.setSpecial(userInfo, dbUser);
-                return HttpResult.success(userInfo);
+    public HttpResult<UserInfo> getInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (Objects.nonNull(authentication)) {
+            User secrityUser = (User) authentication.getPrincipal();
+            if (StringUtils.isNotEmpty(secrityUser.getId())) {
+                Optional<User> optional = userRepository.findById(secrityUser.getId());
+                if (optional.isPresent()) {
+                    User dbUser = optional.get();
+                    UserInfo userInfo = UserInfo.ofAll(dbUser);
+                    UserInfo.setSpecial(userInfo, dbUser);
+                    return HttpResult.success(userInfo);
+                }
             }
         }
         return HttpResult.fail("取得使用者資料失敗");
@@ -246,20 +250,20 @@ public class UserServiceImpl implements UserService {
     public HttpResult<String> updateInfo(String id, UserInfo userInfo) {
         Optional<User> optional = userRepository.findById(id);
         if (optional.isPresent()) {
-            User user = optional.get();
-            if (user instanceof Student student) {
+            User dbUser = optional.get();
+            if (dbUser instanceof Student student) {
                 return studentService.updateInfo(student, userInfo);
-            } else if (user instanceof Teacher teacher) {
+            } else if (dbUser instanceof Teacher teacher) {
                 return teacherService.updateInfo(teacher, userInfo);
             } else {
                 User newInfo = UserInfo.ofUser(userInfo);
-                user.setName(newInfo.getName());
-                user.setGender(newInfo.getGender());
-                user.setBirth(newInfo.getBirth());
-                user.setMail(newInfo.getMail());
-                user.setPhone(newInfo.getPhone());
-                user.setAddress(newInfo.getAddress());
-                userRepository.save(user);
+                dbUser.setName(newInfo.getName());
+                dbUser.setGender(newInfo.getGender());
+                dbUser.setBirth(newInfo.getBirth());
+                dbUser.setMail(newInfo.getMail());
+                dbUser.setPhone(newInfo.getPhone());
+                dbUser.setAddress(newInfo.getAddress());
+                userRepository.save(dbUser);
                 return HttpResult.success("修改成功");
             }
         }

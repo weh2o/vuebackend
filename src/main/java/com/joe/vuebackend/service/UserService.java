@@ -27,10 +27,9 @@ public interface UserService {
     /**
      * 獲取使用者資料
      *
-     * @param token
      * @return
      */
-    HttpResult<UserInfo> getInfo(String token);
+    HttpResult<UserInfo> getInfo();
 
     /**
      * 修改使用者密碼

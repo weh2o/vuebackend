@@ -88,7 +88,7 @@ public class JwtVerifyFilter extends OncePerRequestFilter {
         }
 
         // 4.驗證成功的處理
-        User user = UserInfo.ofUser(userInfo);
+        User user = UserInfo.ofSecurityUser(userInfo);
 
         // Redis使用者資料小於30分鐘時，刷新時間
         LocalDateTime expireTokenTime = user.getExpireTokenTime();

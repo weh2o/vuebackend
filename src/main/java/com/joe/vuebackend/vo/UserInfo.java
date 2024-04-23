@@ -191,7 +191,7 @@ public class UserInfo {
         }
 
         // token過期時間
-        if (Objects.nonNull(source.getExpireTokenTime())){
+        if (Objects.nonNull(source.getExpireTokenTime())) {
             String formatDateTime = DateUtil.formatLocalDateTime(source.getExpireTokenTime());
             target.setExpireTokenTime(formatDateTime);
         }
@@ -251,10 +251,20 @@ public class UserInfo {
             target.setAge(target.getAge());
         }
 
+        // 身分
+//        if (StringUtils.isNotEmpty(source.getIdentity())){
+//            for (IdentityType identityType : IdentityType.values()) {
+//                identityType.getCode().equals(source.getIdentity()){
+//                    target.setIdentity(identityType);
+//                }
+//            }
+//        }
+
         // 電話
         if (StringUtils.isNotEmpty(source.getPhone())) {
             target.setPhone(source.getPhone());
         }
+
         // 信箱
         if (StringUtils.isNotEmpty(source.getMail())) {
             target.setMail(source.getMail());
@@ -271,13 +281,38 @@ public class UserInfo {
             LocalDateTime lastLoginTime = DateUtil.parseToLocalDateTime(sourceLastLoginTime);
             target.setLastLoginTime(lastLoginTime);
         }
+        return target;
+    }
+
+    public static User ofSecurityUser(UserInfo source) {
+        User target = new User();
+        // 識別碼
+        if (StringUtils.isNotEmpty(source.getId())) {
+            target.setId(source.getId());
+        }
+
+        // 姓名
+        if (StringUtils.isNotEmpty(source.getName())) {
+            target.setName(source.getName());
+        }
+
+        // 帳號
+        if (StringUtils.isNotEmpty(source.getAccount())) {
+            target.setAccount(source.getAccount());
+        }
+
+        // 上次登入時間
+        if (ObjectUtils.isNotEmpty(source.getLastLoginTime())) {
+            String sourceLastLoginTime = source.getLastLoginTime();
+            LocalDateTime lastLoginTime = DateUtil.parseToLocalDateTime(sourceLastLoginTime);
+            target.setLastLoginTime(lastLoginTime);
+        }
 
         // token過期時間
-        if (Objects.nonNull(source.getExpireTokenTime())){
+        if (Objects.nonNull(source.getExpireTokenTime())) {
             LocalDateTime tokenTimeout = DateUtil.parseToLocalDateTime(source.getExpireTokenTime());
             target.setExpireTokenTime(tokenTimeout);
         }
-
         return target;
     }
 

@@ -3,7 +3,6 @@ package com.joe.vuebackend.controller;
 import com.joe.vuebackend.bean.HttpResult;
 import com.joe.vuebackend.service.UserService;
 import com.joe.vuebackend.vo.UserInfo;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +19,8 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/info")
-    public HttpResult<UserInfo> getInfo(HttpServletRequest request) {
-        String token = request.getHeader("token");
-        return userService.getInfo(token);
+    public HttpResult<UserInfo> getInfo() {
+        return userService.getInfo();
     }
 
     @PatchMapping("{id}")

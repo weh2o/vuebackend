@@ -46,8 +46,8 @@ services:
     container_name: my-docker-redis
     volumes: # 掛載映射，讓本地的資料和docker容器中的資料連接。 本地目錄 : 容器裡的目錄
       - ../docker/redis/data:/data                                     # Redis資料存放位置
-      - ./docker/redis/myRedis.conf:/usr/local/etc/redis/redis2.conf    # Redis配置文件
-    image: redis:7.0.11
+      - /redis/myRedis.conf:/usr/local/etc/redis/redis2.conf    # Redis配置文件
+    image: redis:latest
     ports:
       - "7000:6379"
     deploy: # 指定部署和運行服務的相關配置

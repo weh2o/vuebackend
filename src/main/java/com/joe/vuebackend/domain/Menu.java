@@ -2,17 +2,19 @@ package com.joe.vuebackend.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 /**
- * 清單
+ * 菜單
  */
 @Entity
 @Table(name = "j_menu")
 @Data
+@ToString(exclude = "parent")
 public class Menu extends BaseEntity {
 
     /**
@@ -41,9 +43,9 @@ public class Menu extends BaseEntity {
     private String icon;
 
     /**
-     * 上層清單
+     * 上層菜單
      */
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.ALL})
     @JoinColumn(
             name = "parent_id",
             foreignKey = @ForeignKey(name = "fk_menu_parent")
@@ -51,9 +53,11 @@ public class Menu extends BaseEntity {
     private Menu parent;
 
     /**
-     * 下層清單
+     * 下層菜單
      */
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent",
+            fetch = FetchType.EAGER
+    )
     private List<Menu> children;
 
     /**
@@ -77,10 +81,22 @@ public class Menu extends BaseEntity {
     )
     private List<Role> roles;
 
-    public void addRoles(Role source){
-        if (Objects.isNull(roles)){
+    public void addRoles(Role source) {
+        if (Objects.isNull(roles)) {
             roles = new ArrayList<>();
         }
-        roles.add(source);
+        if (Objects.nonNull(source)) {
+            roles.add(source);
+        }
+    }
+
+    public void addChildren(Menu source) {
+        if (Objects.isNull(children)) {
+            children = new ArrayList<>();
+        }
+        if (Objects.nonNull(source)) {
+            source.setParent(this);
+            children.add(source);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.joe.vuebackend;
 
 import com.joe.vuebackend.bean.InitMenuBean;
+import com.joe.vuebackend.bean.initbean.InitMenuList;
 import com.joe.vuebackend.constant.CourseLocationType;
 import com.joe.vuebackend.constant.Gender;
 import com.joe.vuebackend.constant.IdentityType;
@@ -28,6 +29,7 @@ import java.time.LocalTime;
 import java.time.Period;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @SpringBootTest
@@ -120,14 +122,17 @@ class InitDataTest {
     }
 
     /**
-     * 初始化清單
+     * 初始化菜單
      */
     @Test
     @Commit
     @Order(3)
     void initMenus() {
-        List<InitMenuBean> list = MenuHelper.getAllInitMenuBean();
-        MenuHelper.build(list);
+        Map<String, List<InitMenuBean>> allMenu = InitMenuList.getAll();
+        for (Map.Entry<String, List<InitMenuBean>> entry : allMenu.entrySet()) {
+            List<InitMenuBean> beanList = entry.getValue();
+            MenuHelper.buildTreeMenu(beanList);
+        }
     }
 
     /**

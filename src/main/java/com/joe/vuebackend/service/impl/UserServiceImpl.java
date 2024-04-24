@@ -97,7 +97,7 @@ public class UserServiceImpl implements UserService {
             // 轉成換傳給前端的格式
             UserInfo userInfo = UserInfo.ofAll(user);
             UserInfo.setSpecial(userInfo, user);
-            // 清單
+            // 菜單
             List<MenuVo> menuVos = menuService.getMenuVoByRole(user.getRolesName());
             userInfo.setMenus(menuVos);
             // 創建token

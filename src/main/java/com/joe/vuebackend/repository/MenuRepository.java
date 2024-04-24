@@ -4,6 +4,8 @@ import com.joe.vuebackend.domain.Menu;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.util.Optional;
+
 public interface MenuRepository
         extends JpaRepository<Menu, String>, JpaSpecificationExecutor<Menu> {
 
@@ -14,5 +16,14 @@ public interface MenuRepository
      * @return
      */
     boolean existsByLabel(String Label);
+
+
+    /**
+     * 根據路徑查詢
+     *
+     * @param path 路徑
+     * @return 菜單
+     */
+    Optional<Menu> findByPath(String path);
 
 }

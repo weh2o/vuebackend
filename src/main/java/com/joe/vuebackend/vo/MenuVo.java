@@ -4,13 +4,21 @@ import com.joe.vuebackend.domain.Menu;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
- * 展示到前端的清單物件
+ * 展示到前端的菜單物件
  */
 @Data
 public class MenuVo {
+
+    /**
+     * 識別碼
+     */
+    private String id;
+
     /**
      * 英文名稱
      */
@@ -41,9 +49,27 @@ public class MenuVo {
      */
     private Integer sort;
 
+    /**
+     * 子菜單
+     */
+    private List<MenuVo> children = new ArrayList<>();
+
+    public void addChildren(MenuVo source) {
+        if (Objects.isNull(children)) {
+            children = new ArrayList<>();
+        }
+        if (Objects.nonNull(source)) {
+            children.add(source);
+        }
+    }
 
     public static MenuVo of(Menu source) {
         MenuVo target = new MenuVo();
+        // 識別碼
+        if (StringUtils.isNotEmpty(source.getId())) {
+            target.setId(source.getId());
+        }
+
         // 英文名
         if (StringUtils.isNotEmpty(source.getName())) {
             target.setName(source.getName());

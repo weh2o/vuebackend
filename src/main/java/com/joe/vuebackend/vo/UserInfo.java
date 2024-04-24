@@ -100,7 +100,7 @@ public class UserInfo {
     private String newPassword;
 
     /**
-     * 清單
+     * 菜單
      */
     private List<MenuVo> menus;
 

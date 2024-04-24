@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 清單
+ * 菜單
  */
 @RestController
 @RequestMapping("/menu")

@@ -1,7 +1,9 @@
 package com.joe.vuebackend.service;
 
+import com.joe.vuebackend.bean.DeleteResult;
 import com.joe.vuebackend.bean.HttpResult;
 import com.joe.vuebackend.bean.PageResult;
+import com.joe.vuebackend.bean.StudentInfo;
 import com.joe.vuebackend.domain.Student;
 import com.joe.vuebackend.repository.condition.StudentCondition;
 import com.joe.vuebackend.vo.StudentVo;
@@ -47,4 +49,11 @@ public interface StudentService {
      */
     HttpResult<String> updateInfo(Student stu, UserInfo userInfo);
 
+    /**
+     * 根據識別碼批量刪除學生資料
+     *
+     * @param infos 學生信息
+     * @return 刪除結果
+     */
+    HttpResult<DeleteResult<StudentInfo>> removeAllById(List<StudentInfo> infos);
 }

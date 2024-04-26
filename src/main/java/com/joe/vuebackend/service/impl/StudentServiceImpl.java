@@ -1,7 +1,9 @@
 package com.joe.vuebackend.service.impl;
 
+import com.joe.vuebackend.bean.DeleteResult;
 import com.joe.vuebackend.bean.HttpResult;
 import com.joe.vuebackend.bean.PageResult;
+import com.joe.vuebackend.bean.StudentInfo;
 import com.joe.vuebackend.domain.Student;
 import com.joe.vuebackend.repository.StudentRepository;
 import com.joe.vuebackend.repository.condition.StudentCondition;
@@ -10,6 +12,7 @@ import com.joe.vuebackend.service.StudentService;
 import com.joe.vuebackend.vo.StudentVo;
 import com.joe.vuebackend.vo.UserInfo;
 import lombok.Setter;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -127,7 +130,7 @@ public class StudentServiceImpl implements StudentService {
         return Optional.ofNullable(target);
     }
 
-    public HttpResult<String> updateInfo(Student stu, UserInfo userInfo){
+    public HttpResult<String> updateInfo(Student stu, UserInfo userInfo) {
         Student newInfo = StudentVo.ofStudent(userInfo);
         stu.setName(newInfo.getName());
         stu.setGender(newInfo.getGender());
@@ -140,4 +143,26 @@ public class StudentServiceImpl implements StudentService {
         return HttpResult.success("修改成功");
     }
 
+    @Override
+    public HttpResult<DeleteResult<StudentInfo>> removeAllById(List<StudentInfo> infos) {
+        DeleteResult<StudentInfo> deleteResult = new DeleteResult<>();
+        for (StudentInfo stu : infos) {
+            String id = stu.getId();
+            boolean exists = stuRepository.existsById(id);
+            if (exists) {
+                stuRepository.deleteById(id);
+                deleteResult.addSuccess(stu);
+            } else {
+                deleteResult.addFail(stu);
+            }
+        }
+
+        if (CollectionUtils.isEmpty(deleteResult.getFailList())) {
+            return HttpResult.success("刪除成功", deleteResult);
+        } else if (CollectionUtils.isEmpty(deleteResult.getSuccessList())) {
+            return HttpResult.fail("刪除失敗", deleteResult);
+        } else {
+            return HttpResult.success("部分刪除成功", deleteResult);
+        }
+    }
 }

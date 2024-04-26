@@ -1,7 +1,9 @@
 package com.joe.vuebackend.controller;
 
+import com.joe.vuebackend.bean.DeleteResult;
 import com.joe.vuebackend.bean.HttpResult;
 import com.joe.vuebackend.bean.PageResult;
+import com.joe.vuebackend.bean.StudentInfo;
 import com.joe.vuebackend.repository.condition.StudentCondition;
 import com.joe.vuebackend.service.StudentService;
 import com.joe.vuebackend.utils.BindingResultHelper;
@@ -14,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -76,6 +79,11 @@ public class StudentController {
     @DeleteMapping("{id}")
     public HttpResult<String> remove(@PathVariable("id") String id) {
         return studentService.remove(id);
+    }
+
+    @DeleteMapping
+    public HttpResult<DeleteResult<StudentInfo>> removeAll(@RequestBody List<StudentInfo> infos) {
+        return studentService.removeAllById(infos);
     }
 
 

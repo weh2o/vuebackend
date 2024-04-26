@@ -125,7 +125,7 @@ public class User extends BaseEntity implements UserDetails {
     /**
      * 身分
      */
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(
             name = "identity_id",
             foreignKey = @ForeignKey(name = "fk_user_identity")
@@ -135,7 +135,7 @@ public class User extends BaseEntity implements UserDetails {
     /**
      * 課程
      */
-    @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "users")
     private List<Course> courseList;
 
     /**

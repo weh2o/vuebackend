@@ -42,7 +42,6 @@ public class Identity extends BaseEntity {
      * 使用者
      */
     @OneToMany(
-            cascade = CascadeType.ALL,
             fetch = FetchType.EAGER,
             mappedBy = "identity"
     )

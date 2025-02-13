@@ -6,6 +6,7 @@ import com.joe.vuebackend.bean.LoginInfo;
 import com.joe.vuebackend.bean.RegisterInfo;
 import com.joe.vuebackend.constant.CacheConstant;
 import com.joe.vuebackend.constant.IdentityType;
+import com.joe.vuebackend.constant.RoleType;
 import com.joe.vuebackend.domain.*;
 import com.joe.vuebackend.repository.*;
 import com.joe.vuebackend.service.MenuService;
@@ -14,6 +15,7 @@ import com.joe.vuebackend.service.TeacherService;
 import com.joe.vuebackend.service.UserService;
 import com.joe.vuebackend.utils.JwtUtil;
 import com.joe.vuebackend.utils.RedisCacheUtil;
+import com.joe.vuebackend.utils.RoleHelper;
 import com.joe.vuebackend.vo.MenuVo;
 import com.joe.vuebackend.vo.UserInfo;
 import lombok.Setter;
@@ -130,20 +132,28 @@ public class UserServiceImpl implements UserService {
                 student = dbStu.get();
                 isNew = false;
             }
+
+            //設置"帳號、密碼"
             student.setAccount(info.getAccount());
             student.setPassword(passwordEncoder.encode(info.getPassword()));
             Student resultStu = stuRepository.save(student);
 
+            //設置"學生身分"
+            Optional<Identity> optional = identityRepository.findByName(IdentityType.STUDENT.getText());
+            if (optional.isPresent()) {
+                Identity dbIdentity = optional.get();
+                dbIdentity.addUserList(resultStu);
+                resultStu.setIdentity(dbIdentity);
+            }
+            //設置"學生權限"
+            List<Role> roleList = RoleHelper.getRoleList(List.of(
+                    RoleType.STUDENT.name()
+            ));
+            resultStu.setRoles(roleList);
+            stuRepository.save(resultStu);
+
             // 新學生:
             if (isNew) {
-                // 給予身分
-                Optional<Identity> optional = identityRepository.findByName(IdentityType.STUDENT.getText());
-                if (optional.isPresent()) {
-                    Identity dbIdentity = optional.get();
-                    dbIdentity.addUserList(resultStu);
-                    resultStu.setIdentity(dbIdentity);
-                    stuRepository.save(resultStu);
-                }
                 return HttpResult.success("註冊成功");
             }
             return HttpResult.success("註冊成功，資料已同步");

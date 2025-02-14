@@ -162,16 +162,16 @@ public class UserServiceImpl implements UserService {
         // 教師
         if (IdentityType.TEACHER.getCode().equals(identity)) {
             Optional<TeacherNo> optional = teacherNoRepository.findByNo(info.getNo());
-            // 1.教師證不存在
+            //1.教師證不存在
             if (optional.isEmpty()) {
                 return HttpResult.fail("註冊失敗，請再次確認教師證是否正確");
             }
 
-            // 2.教師證存在
+            //2.教師證存在
             Teacher target = new Teacher();
             TeacherNo teacherNo = optional.get();
 
-            // 2.1 教師證已被使用，找使用該教師證的教師資料，確認是否有帳號屬性
+            //2.1 教師證已被使用: 找使用該教師證的教師資料，確認是否有帳號屬性
             Optional<Teacher> dbOptional = teacherRepository.findByNo_No(teacherNo.getNo());
             if (dbOptional.isPresent()) {
                 Teacher dbTeacher = dbOptional.get();
@@ -179,32 +179,35 @@ public class UserServiceImpl implements UserService {
                     return HttpResult.fail("註冊失敗，此教師證已經註冊");
                 }
                 target = dbTeacher;
-                isNew = false;
             }
 
-            // 2.2 教師證還未被使用，判斷是否有效
+            //2.2 教師證還未被使用，判斷是否有效
             if (Boolean.TRUE == teacherNo.getDisable()) {
                 return HttpResult.fail("註冊失敗，教師證已停用");
             }
-            // 註冊操作
+            //3.註冊操作
             target.setAccount(info.getAccount());
             target.setPassword(passwordEncoder.encode(info.getPassword()));
             Teacher resultTeacher = teacherRepository.save(target);
 
-            // 新的教師:
-            if (isNew) {
-                // 給予身分
-                Optional<Identity> optionalIdentity = identityRepository.findByName(IdentityType.TEACHER.getText());
-                if (optionalIdentity.isPresent()) {
-                    Identity dbIdentity = optionalIdentity.get();
-                    dbIdentity.addUserList(resultTeacher);
-                    resultTeacher.setIdentity(dbIdentity);
-                }
-                // 放入教師證，將教師證改為使用中
-                teacherNo.setAvailable(false);
-                resultTeacher.setNo(teacherNo);
-                teacherRepository.save(resultTeacher);
+            //設置"教師身分"
+            Optional<Identity> optionalIdentity = identityRepository.findByName(IdentityType.TEACHER.getText());
+            if (optionalIdentity.isPresent()) {
+                Identity dbIdentity = optionalIdentity.get();
+                dbIdentity.addUserList(resultTeacher);
+                resultTeacher.setIdentity(dbIdentity);
             }
+
+            //設置"教師權限"
+            List<Role> roleList = RoleHelper.getRoleList(List.of(
+                    RoleType.TEACHER.name()
+            ));
+            resultTeacher.setRoles(roleList);
+
+            //放入教師證，將教師證改為使用中
+            teacherNo.setAvailable(false);
+            resultTeacher.setNo(teacherNo);
+            teacherRepository.save(resultTeacher);
             return HttpResult.success("註冊成功");
         }
         return HttpResult.fail("註冊失敗");

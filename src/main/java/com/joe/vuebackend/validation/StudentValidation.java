@@ -34,14 +34,19 @@ public class StudentValidation implements Validator {
     public void validateNo(StudentVo main, Errors errors) {
         String no = main.getNo();
         if (StringUtils.isNotEmpty(no)) {
-            Optional<Student> optional = stuRepository.findByNo(no);
-            if (optional.isPresent()) {
-                Student dbStu = optional.get();
-                // 如果學生證是屬於本人，則放行
-                if (dbStu.getNo().equals(main.getNo())){
-                    return;
+            //原始資料
+            Optional<Student> optionalById = stuRepository.findById(main.getId());
+            Optional<Student> OptionalByNo = stuRepository.findByNo(no);
+            if (optionalById.isPresent()) {
+                Student stuById = optionalById.get();
+                //學生證是否有人使用: 如果有，依照id比對是否是同個人
+                if (OptionalByNo.isPresent()){
+                    Student stuByNo = OptionalByNo.get();
+                    if (!stuById.getId().equals(stuByNo.getId())) {
+                        //學生證有人使用，但與修改者是不同人拋出異常
+                        errors.rejectValue("no", "duplicate-no", "學生證重複");
+                    }
                 }
-                errors.rejectValue("no", "duplicate-no", "學生證重複");
             }
         }
 

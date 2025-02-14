@@ -6,12 +6,10 @@ import com.joe.vuebackend.bean.PageResult;
 import com.joe.vuebackend.bean.StudentInfo;
 import com.joe.vuebackend.repository.condition.StudentCondition;
 import com.joe.vuebackend.service.StudentService;
-import com.joe.vuebackend.utils.BindingResultHelper;
 import com.joe.vuebackend.validation.StudentValidation;
 import com.joe.vuebackend.vo.StudentVo;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
@@ -31,25 +29,19 @@ public class StudentController {
     private StudentService studentService;
 
     @Setter(onMethod_ = @Autowired)
-    private StudentValidation StudentValidation;
+    private StudentValidation studentValidation;
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
         if (Objects.nonNull(binder.getTarget()) &&
-                binder.getTarget() instanceof StudentVo
-        ) {
-            binder.addValidators(StudentValidation);
+                binder.getTarget() instanceof StudentVo) {
+            binder.addValidators(studentValidation);
         }
     }
 
     @PostMapping
-    public HttpResult<StudentVo> save(@RequestBody @Validated StudentVo vo, BindingResult bindingResult) {
+    public HttpResult<StudentVo> save(@RequestBody @Validated StudentVo vo) {
         HttpResult<StudentVo> result = HttpResult.fail();
-
-        if (bindingResult.hasErrors()) {
-            String failMsg = BindingResultHelper.failMsg(bindingResult);
-            return HttpResult.fail(failMsg);
-        }
 
         Optional<StudentVo> optional = studentService.saveReturnVo(vo);
 
